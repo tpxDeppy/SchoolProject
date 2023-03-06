@@ -1,8 +1,11 @@
-﻿namespace SchoolProject.Models
+﻿using SchoolProject.BL.Models;
+
+namespace SchoolProject.Models
 {
     public class School
     {
-        public int User_ID { get; set; }
-        public string School_name { get; set; } = String.Empty;
+        public Guid School_ID { get; set; } //PK
+        public string School_name { get; set; }
+
     }
 }
