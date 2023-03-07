@@ -1,8 +1,7 @@
-﻿using SchoolProject.BL.Models;
-
-namespace SchoolProject.Models
+﻿
+namespace SchoolProject.BL.Models
 {
-    internal class School
+    public class School
     {
         public Guid School_ID { get; set; } //PK
         public string School_name { get; set; }
