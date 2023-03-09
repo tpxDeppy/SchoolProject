@@ -8,8 +8,7 @@ namespace SchoolProject.BL.Models
         public string Class_description { get; set; }
 
         //implementing the many to many relationship between Person and Class
-        public ICollection<Person> Persons { get; set; }
-
+        public ICollection<PersonClass> PersonClasses { get; set; }
 
     }
 }
