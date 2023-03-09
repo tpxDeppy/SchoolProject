@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchoolProject.DAL;
 
@@ -11,9 +12,11 @@ using SchoolProject.DAL;
 namespace SchoolProject.DAL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230309092422_ReconfigAndSeedData")]
+    partial class ReconfigAndSeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace SchoolProject.DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ClassPerson", b =>
+                {
+                    b.Property<Guid>("ClassesClass_ID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PersonsUser_ID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ClassesClass_ID", "PersonsUser_ID");
+
+                    b.HasIndex("PersonsUser_ID");
+
+                    b.ToTable("ClassConnection", (string)null);
+                });
 
             modelBuilder.Entity("SchoolProject.BL.Models.Class", b =>
                 {
@@ -59,12 +77,6 @@ namespace SchoolProject.DAL.Migrations
                             Class_ID = new Guid("941b2d53-f728-4c50-87f8-a8bb2fb6d8c2"),
                             Class_description = "How to sing",
                             Class_name = "Singing"
-                        },
-                        new
-                        {
-                            Class_ID = new Guid("9f082281-2925-4261-a339-be2f4db65271"),
-                            Class_description = "How to dance",
-                            Class_name = "Dancing"
                         });
                 });
 
@@ -75,7 +87,7 @@ namespace SchoolProject.DAL.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<DateTime?>("Date_of_birth")
+                    b.Property<DateTime>("Date_of_birth")
                         .HasColumnType("date");
 
                     b.Property<string>("First_name")
@@ -93,7 +105,7 @@ namespace SchoolProject.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Year_group")
+                    b.Property<int>("Year_group")
                         .HasColumnType("int");
 
                     b.HasKey("User_ID");
@@ -105,63 +117,23 @@ namespace SchoolProject.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            User_ID = new Guid("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc"),
+                            User_ID = new Guid("77fff675-6f16-4871-8110-345b540f598d"),
+                            Date_of_birth = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             First_name = "Johnny",
                             Last_name = "Depp",
                             School_ID = new Guid("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"),
-                            User_type = "Teacher"
+                            User_type = "Teacher",
+                            Year_group = 0
                         },
                         new
                         {
-                            User_ID = new Guid("4ca1789c-b20c-4320-8472-c52ebeac47e0"),
+                            User_ID = new Guid("b63071a1-2890-47ac-9f74-10af84b64ec3"),
                             Date_of_birth = new DateTime(2005, 1, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             First_name = "Angelina",
                             Last_name = "Jolie",
                             School_ID = new Guid("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"),
                             User_type = "Pupil",
                             Year_group = 13
-                        });
-                });
-
-            modelBuilder.Entity("SchoolProject.BL.Models.PersonClass", b =>
-                {
-                    b.Property<Guid>("Class_ID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("User_ID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Class_ID", "User_ID");
-
-                    b.HasIndex("User_ID");
-
-                    b.ToTable("PersonClass");
-
-                    b.HasData(
-                        new
-                        {
-                            Class_ID = new Guid("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                            User_ID = new Guid("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc")
-                        },
-                        new
-                        {
-                            Class_ID = new Guid("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
-                            User_ID = new Guid("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc")
-                        },
-                        new
-                        {
-                            Class_ID = new Guid("941b2d53-f728-4c50-87f8-a8bb2fb6d8c2"),
-                            User_ID = new Guid("4ca1789c-b20c-4320-8472-c52ebeac47e0")
-                        },
-                        new
-                        {
-                            Class_ID = new Guid("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                            User_ID = new Guid("4ca1789c-b20c-4320-8472-c52ebeac47e0")
-                        },
-                        new
-                        {
-                            Class_ID = new Guid("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
-                            User_ID = new Guid("4ca1789c-b20c-4320-8472-c52ebeac47e0")
                         });
                 });
 
@@ -188,6 +160,21 @@ namespace SchoolProject.DAL.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ClassPerson", b =>
+                {
+                    b.HasOne("SchoolProject.BL.Models.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassesClass_ID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SchoolProject.BL.Models.Person", null)
+                        .WithMany()
+                        .HasForeignKey("PersonsUser_ID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SchoolProject.BL.Models.Person", b =>
                 {
                     b.HasOne("SchoolProject.BL.Models.School", "School")
@@ -197,35 +184,6 @@ namespace SchoolProject.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("School");
-                });
-
-            modelBuilder.Entity("SchoolProject.BL.Models.PersonClass", b =>
-                {
-                    b.HasOne("SchoolProject.BL.Models.Class", "Class")
-                        .WithMany("PersonClasses")
-                        .HasForeignKey("Class_ID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SchoolProject.BL.Models.Person", "Person")
-                        .WithMany("PersonClasses")
-                        .HasForeignKey("User_ID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("Person");
-                });
-
-            modelBuilder.Entity("SchoolProject.BL.Models.Class", b =>
-                {
-                    b.Navigation("PersonClasses");
-                });
-
-            modelBuilder.Entity("SchoolProject.BL.Models.Person", b =>
-                {
-                    b.Navigation("PersonClasses");
                 });
 
             modelBuilder.Entity("SchoolProject.BL.Models.School", b =>
