@@ -2,6 +2,7 @@
 using SchoolProject.API.DataTransferObjs.Person;
 using SchoolProject.API.Services.PersonService;
 using SchoolProject.BL.Models;
+using SchoolProject.BL.Models.Enums;
 using SchoolProject.DAL;
 using System.Drawing.Text;
 
@@ -11,16 +12,12 @@ namespace SchoolProject.API.Controllers
     [Route("[controller]")]
     public class PersonController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        //Injecting IPersonService
         private readonly IPersonService _personService;
-        public PersonController(DataContext dataContext, IPersonService personService) 
-        { 
-            _dataContext = dataContext;
+        public PersonController(IPersonService personService)
+        {
             _personService = personService;
-            
         }
-
-        private static Person pupil = new Person();
 
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<GetPersonDto>>> GetAll()
@@ -29,11 +26,29 @@ namespace SchoolProject.API.Controllers
             return Ok(await _personService.GetAllPeople());
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetSinglePerson(Guid id)
-        //{
-        //    return Ok(await _personService.GetPersonById(id));
-        //}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetSinglePerson(Guid id)
+        {
+            return Ok(await _personService.GetPersonById(id));
+        }
+
+        [HttpGet("User/{lastName}")]
+        public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetPersonByLastName(string lastName)
+        {
+            return Ok(await _personService.GetPersonByLastName(lastName));
+        }
+
+        [HttpGet("UserType/{userType}")]
+        public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetPersonByUserType(UserType userType)
+        {
+            return Ok(await _personService.GetPersonByUserType(userType));
+        }
+
+        [HttpGet("Pupil/{yearGroup}")]
+        public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetPupilsByYearGroup(int yearGroup)
+        {
+            return Ok(await _personService.GetPupilsByYearGroup(yearGroup));
+        }
 
         //[HttpPost]
         //public async Task<ActionResult<ServiceResponse<GetPersonDto>>> AddPerson(Person newPerson) 

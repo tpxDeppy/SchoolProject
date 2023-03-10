@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SchoolProject.API.DataTransferObjs.Person;
 using SchoolProject.BL.Models;
+using SchoolProject.BL.Models.Enums;
 
 namespace SchoolProject.API.Services.PersonService
 {
@@ -22,13 +23,38 @@ namespace SchoolProject.API.Services.PersonService
             serviseResponse.Data = dbPeople.Select(p => _mapper.Map<GetPersonDto>(p)).ToList();
             return serviseResponse;
         }
-        //public async Task<ServiceResponse<GetPersonDto>> GetPersonById(Guid id)
-        //{
-        //    var serviceResponse = new ServiceResponse<GetPersonDto>();
-        //    var person = persons.FirstOrDefault(p => p.User_ID == id);
-        //    serviceResponse.Data = _mapper.Map<GetPersonDto>(person);
-        //    return serviceResponse;
-        //}
+        public async Task<ServiceResponse<GetPersonDto>> GetPersonById(Guid id)
+        {
+            var serviceResponse = new ServiceResponse<GetPersonDto>();
+            var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == id);
+            serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<GetPersonDto>> GetPersonByLastName(string lastName)
+        {
+            var serviceResponse = new ServiceResponse<GetPersonDto>();
+            var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.Last_name == lastName);
+            serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<GetPersonDto>> GetPersonByUserType(UserType userType)
+        {
+            var serviceResponse = new ServiceResponse<GetPersonDto>();
+            var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_type == userType);
+            serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<List<GetPersonDto>>> GetPupilsByYearGroup(int yearGroup)
+        {
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+            var dbPupils = await _dataContext.Person.ToListAsync();
+            serviceResponse.Data = dbPupils.Select(p => _mapper.Map<GetPersonDto>(p))
+                                           .Where(p => p.User_type == UserType.Pupil).ToList();
+            return serviceResponse;
+        }
 
         //public async Task<ServiceResponse<GetPersonDto>> UpdatePerson(UpdatePersonDto updatedPerson)
         //{
