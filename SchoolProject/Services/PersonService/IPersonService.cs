@@ -9,9 +9,9 @@ namespace SchoolProject.API.Services.PersonService
         Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople();
         Task<ServiceResponse<GetPersonDto>> GetPersonById(Guid id);
         Task<ServiceResponse<GetPersonDto>> GetPersonByLastName(string lastName);
-        Task<ServiceResponse<GetPersonDto>> GetPersonByUserType(UserType userType);
+        Task<ServiceResponse<List<GetPersonDto>>> GetPeopleByUserType(UserType userType);
         Task<ServiceResponse<List<GetPersonDto>>> GetPupilsByYearGroup(int yearGroup);
-        ////list of persons to add person AddPerson(Person newPerson)
+        Task<ServiceResponse<List<GetPersonDto>>> AddPerson(AddPersonDto newPerson);
         //Task<ServiceResponse<GetPersonDto>> UpdatePerson(UpdatePersonDto updatedPerson);
 
     }

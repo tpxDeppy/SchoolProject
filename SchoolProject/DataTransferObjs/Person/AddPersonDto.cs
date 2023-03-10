@@ -12,9 +12,7 @@ namespace SchoolProject.API.DataTransferObjs.Person
         public int Year_group { get; set; } 
 
         public Guid School_ID { get; set; } 
-        public School School { get; set; }
-
-        public ICollection<PersonClass> PersonClasses { get; set; }
+        
 
     }
 }
