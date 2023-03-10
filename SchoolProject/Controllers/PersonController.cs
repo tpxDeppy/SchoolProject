@@ -39,23 +39,22 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("UserType/{userType}")]
-        public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetPersonByUserType(UserType userType)
+        public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPersonByUserType(UserType userType)
         {
-            return Ok(await _personService.GetPersonByUserType(userType));
+            return Ok(await _personService.GetPeopleByUserType(userType));
         }
 
         [HttpGet("Pupil/{yearGroup}")]
-        public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetPupilsByYearGroup(int yearGroup)
+        public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPupilsByYearGroup(int yearGroup)
         {
             return Ok(await _personService.GetPupilsByYearGroup(yearGroup));
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult<ServiceResponse<GetPersonDto>>> AddPerson(Person newPerson) 
-        //{
-        //    persons.Add(newPerson);
-        //    return Ok(newPerson);
-        //}
+        [HttpPost("AddPerson")]
+        public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> AddPerson(AddPersonDto newPerson)
+        {
+            return Ok(await _personService.AddPerson(newPerson));
+        }
 
         //[HttpPut]
         //public async Task<ActionResult<ServiceResponse<GetPersonDto>>> UpdatePerson(UpdatePersonDto updatedPerson)

@@ -20,7 +20,7 @@ namespace SchoolProject.API.Services.PersonService
         {
             var serviseResponse = new ServiceResponse<List<GetPersonDto>>();
             var dbPeople = await _dataContext.Person.ToListAsync();
-            serviseResponse.Data = dbPeople.Select(p => _mapper.Map<GetPersonDto>(p)).ToList();
+            serviseResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
             return serviseResponse;
         }
         public async Task<ServiceResponse<GetPersonDto>> GetPersonById(Guid id)
@@ -39,11 +39,12 @@ namespace SchoolProject.API.Services.PersonService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<GetPersonDto>> GetPersonByUserType(UserType userType)
+        public async Task<ServiceResponse<List<GetPersonDto>>> GetPeopleByUserType(UserType userType)
         {
-            var serviceResponse = new ServiceResponse<GetPersonDto>();
-            var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_type == userType);
-            serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+            var dbPeople = await _dataContext.Person.ToListAsync();
+            serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>)
+                                           .Where(p => p.User_type == userType).ToList();
             return serviceResponse;
         }
 
@@ -51,10 +52,24 @@ namespace SchoolProject.API.Services.PersonService
         {
             var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
             var dbPupils = await _dataContext.Person.ToListAsync();
-            serviceResponse.Data = dbPupils.Select(p => _mapper.Map<GetPersonDto>(p))
+            serviceResponse.Data = dbPupils.Select(_mapper.Map<GetPersonDto>)
                                            .Where(p => p.User_type == UserType.Pupil).ToList();
             return serviceResponse;
         }
+
+        public async Task<ServiceResponse<List<GetPersonDto>>> AddPerson(AddPersonDto newPerson)
+        {
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+            var person = _mapper.Map<Person>(newPerson);
+
+            _dataContext.Person.Add(person);
+            await _dataContext.SaveChangesAsync();
+
+            serviceResponse.Data = 
+                await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
+            return serviceResponse;
+        }
+
 
         //public async Task<ServiceResponse<GetPersonDto>> UpdatePerson(UpdatePersonDto updatedPerson)
         //{
