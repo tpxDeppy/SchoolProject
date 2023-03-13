@@ -22,7 +22,7 @@ namespace SchoolProject.API.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<GetPersonDto>>> GetAll()
         {
-            
+
             return Ok(await _personService.GetAllPeople());
         }
 
@@ -59,9 +59,28 @@ namespace SchoolProject.API.Controllers
         [HttpPut]
         public async Task<ActionResult<ServiceResponse<GetPersonDto>>> UpdatePerson(UpdatePersonDto updatedPerson)
         {
-            return Ok(await _personService.UpdatePerson(updatedPerson));
+            var response = await _personService.UpdatePerson(updatedPerson);
+
+            if (response.Data is null)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetPersonDto>>> DeletePerson(Guid id)
+        {
+            var response = await _personService.DeletePerson(id);
+
+            if (response.Data is null)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
+        }
 
     }
 }

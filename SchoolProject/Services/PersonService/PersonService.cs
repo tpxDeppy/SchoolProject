@@ -123,6 +123,7 @@ namespace SchoolProject.API.Services.PersonService
             try
             {
                 var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == updatedPerson.User_ID);
+                
                 if (dbPerson is null)
                 {
                     throw new Exception($"Person with ID '{updatedPerson.User_ID}' could not be found.");
@@ -147,5 +148,36 @@ namespace SchoolProject.API.Services.PersonService
 
             return serviceResponse;
         }
+
+        public async Task<ServiceResponse<List<GetPersonDto>>> DeletePerson(Guid id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+
+            try
+            {
+                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == id);
+                
+                if (dbPerson is null)
+                {
+                    throw new Exception($"Person with ID '{id}' could not be found.");
+                }
+
+                _dataContext.Person.Remove(dbPerson);
+
+                await _dataContext.SaveChangesAsync();
+
+                serviceResponse.Data = 
+                    await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
+                
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+
     }
 }
