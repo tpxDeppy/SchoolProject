@@ -26,16 +26,46 @@ namespace SchoolProject.API.Services.PersonService
         public async Task<ServiceResponse<GetPersonDto>> GetPersonById(Guid id)
         {
             var serviceResponse = new ServiceResponse<GetPersonDto>();
-            var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == id);
-            serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+            
+            try
+            {
+                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == id);
+                serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+
+                if (dbPerson is null)
+                {
+                    throw new Exception($"Could not find a person with ID of '{id}'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
             return serviceResponse;
         }
 
         public async Task<ServiceResponse<GetPersonDto>> GetPersonByLastName(string lastName)
         {
             var serviceResponse = new ServiceResponse<GetPersonDto>();
-            var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.Last_name == lastName);
-            serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+
+            try
+            {
+                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.Last_name == lastName);
+                serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+
+                if (dbPerson is null)
+                {
+                    throw new Exception($"Could not find a person with the last name of '{lastName}'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+            
             return serviceResponse;
         }
 
@@ -52,8 +82,24 @@ namespace SchoolProject.API.Services.PersonService
         {
             var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
             var dbPupils = await _dataContext.Person.ToListAsync();
-            serviceResponse.Data = dbPupils.Select(_mapper.Map<GetPersonDto>)
-                                           .Where(p => p.User_type == UserType.Pupil).ToList();
+
+            try
+            {
+                serviceResponse.Data = dbPupils.Select(_mapper.Map<GetPersonDto>)
+                                           .Where(p => p.User_type == UserType.Pupil
+                                                    && p.Year_group == yearGroup).ToList();
+
+                if (serviceResponse.Data.Count == 0)
+                {
+                    throw new Exception($"Could not find pupils in this '{yearGroup}' year group.");
+                }
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
             return serviceResponse;
         }
 
@@ -70,17 +116,36 @@ namespace SchoolProject.API.Services.PersonService
             return serviceResponse;
         }
 
+        public async Task<ServiceResponse<GetPersonDto>> UpdatePerson(UpdatePersonDto updatedPerson)
+        {
+            var serviceResponse = new ServiceResponse<GetPersonDto>();
 
-        //public async Task<ServiceResponse<GetPersonDto>> UpdatePerson(UpdatePersonDto updatedPerson)
-        //{
-        //    var serviceResponse = new ServiceResponse<GetPersonDto>();
-        //    var person = persons.FirstOrDefault(p => p.User_ID == updatedPerson.User_ID);
+            try
+            {
+                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == updatedPerson.User_ID);
+                if (dbPerson is null)
+                {
+                    throw new Exception($"Person with ID '{updatedPerson.User_ID}' could not be found.");
+                }
 
-        //    person.First_Name = updatedPerson.First_name;
-        //    //etc
+                dbPerson.First_name = updatedPerson.First_name;
+                dbPerson.Last_name = updatedPerson.Last_name;
+                dbPerson.User_type = updatedPerson.User_type;
+                dbPerson.Date_of_birth = updatedPerson.Date_of_birth;
+                dbPerson.Year_group = updatedPerson.Year_group;
 
-        //    serviceResponse.Data = _mapper.Map<GetPersonDto>(updatedPerson);
-        //    return serviceResponse;
-        //}
+                await _dataContext.SaveChangesAsync();
+
+                serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
     }
 }

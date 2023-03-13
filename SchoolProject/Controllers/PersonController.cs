@@ -56,11 +56,11 @@ namespace SchoolProject.API.Controllers
             return Ok(await _personService.AddPerson(newPerson));
         }
 
-        //[HttpPut]
-        //public async Task<ActionResult<ServiceResponse<GetPersonDto>>> UpdatePerson(UpdatePersonDto updatedPerson)
-        //{
-        //    return Ok(await _personService.UpdatePerson(updatedPerson));
-        //}
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<GetPersonDto>>> UpdatePerson(UpdatePersonDto updatedPerson)
+        {
+            return Ok(await _personService.UpdatePerson(updatedPerson));
+        }
 
 
     }
