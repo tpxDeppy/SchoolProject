@@ -1,11 +1,8 @@
-﻿
-namespace SchoolProject.BL.Models
+﻿namespace SchoolProject.API.DataTransferObjs.School
 {
-    public class School
+    public class UpdateSchoolDto
     {
         public Guid School_ID { get; set; } //PK
         public string School_name { get; set; } = string.Empty;
-
-        public ICollection<Person> Persons { get; set; }
     }
 }

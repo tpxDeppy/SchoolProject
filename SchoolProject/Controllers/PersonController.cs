@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.Mvc;
 using SchoolProject.API.DataTransferObjs.Person;
 using SchoolProject.API.Services.PersonService;
 using SchoolProject.BL.Models;
 using SchoolProject.BL.Models.Enums;
-using SchoolProject.DAL;
-using System.Drawing.Text;
 
 namespace SchoolProject.API.Controllers
 {
@@ -22,32 +21,79 @@ namespace SchoolProject.API.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<GetPersonDto>>> GetAll()
         {
+            var response = await _personService.GetAllPeople();
+            
+            if (response.Data is null) 
+            { 
+                return NotFound(response.Message);
+            }
 
-            return Ok(await _personService.GetAllPeople());
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetSinglePerson(Guid id)
         {
-            return Ok(await _personService.GetPersonById(id));
+            var response = await _personService.GetPersonById(id);
+
+            if (response.Data is null)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
         }
 
         [HttpGet("User/{lastName}")]
         public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetPersonByLastName(string lastName)
         {
-            return Ok(await _personService.GetPersonByLastName(lastName));
+            var response = await _personService.GetPersonByLastName(lastName);
+
+            if (response.Data is null)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
         }
 
         [HttpGet("UserType/{userType}")]
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPersonByUserType(UserType userType)
         {
-            return Ok(await _personService.GetPeopleByUserType(userType));
+            var response = await _personService.GetPeopleByUserType(userType);
+
+            if (response.Data is null)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
         }
 
         [HttpGet("Pupil/{yearGroup}")]
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPupilsByYearGroup(int yearGroup)
         {
-            return Ok(await _personService.GetPupilsByYearGroup(yearGroup));
+            var response = await _personService.GetPupilsByYearGroup(yearGroup);
+
+            if (response.Data is null)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("{schoolID}/people")]
+        public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPeopleFromSchool(Guid schoolID)
+        {
+            var response = await _personService.GetPeopleFromSchool(schoolID);
+
+            if (response.Data is null)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
         }
 
         [HttpPost("AddPerson")]

@@ -1,6 +1,7 @@
 global using Microsoft.EntityFrameworkCore;
 global using SchoolProject.DAL;
 using SchoolProject.API.Services.PersonService;
+using SchoolProject.API.Services.SchoolService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddSwaggerGen();
 //Registering AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<ISchoolService, SchoolService>();
 
 //Dependency Injection for DbContext
 builder.Services.AddDbContext<DataContext>(

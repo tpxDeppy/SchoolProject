@@ -18,11 +18,27 @@ namespace SchoolProject.API.Services.PersonService
 
         public async Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople()
         {
-            var serviseResponse = new ServiceResponse<List<GetPersonDto>>();
-            var dbPeople = await _dataContext.Person.ToListAsync();
-            serviseResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
-            return serviseResponse;
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+
+            try
+            {
+                var dbPeople = await _dataContext.Person.ToListAsync();
+                serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
+
+                if (dbPeople is null)
+                {
+                    throw new Exception($"Could not find any data...");
+                }
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
         }
+
         public async Task<ServiceResponse<GetPersonDto>> GetPersonById(Guid id)
         {
             var serviceResponse = new ServiceResponse<GetPersonDto>();
@@ -81,18 +97,46 @@ namespace SchoolProject.API.Services.PersonService
         public async Task<ServiceResponse<List<GetPersonDto>>> GetPupilsByYearGroup(int yearGroup)
         {
             var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
-            var dbPupils = await _dataContext.Person.ToListAsync();
 
             try
             {
+                var dbPupils = await _dataContext.Person.ToListAsync();
+
+                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
+                {
+                    throw new Exception($"Could not find pupils in this '{yearGroup}' year group.");
+                }
+
                 serviceResponse.Data = dbPupils.Select(_mapper.Map<GetPersonDto>)
                                            .Where(p => p.User_type == UserType.Pupil
                                                     && p.Year_group == yearGroup).ToList();
 
-                if (serviceResponse.Data.Count == 0)
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<List<GetPersonDto>>> GetPeopleFromSchool(Guid schoolID)
+        {
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+
+            try
+            {
+                var dbPeople = await _dataContext.Person.ToListAsync();
+
+                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
-                    throw new Exception($"Could not find pupils in this '{yearGroup}' year group.");
+                    throw new Exception($"School with '{schoolID}' could not be found.");
                 }
+
+                serviceResponse.Data = dbPeople.Select(p => _mapper.Map<GetPersonDto>(p))
+                                               .Where(p => p.School_ID == schoolID)
+                                               .ToList();
             }
             catch (Exception ex)
             {
