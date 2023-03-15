@@ -96,6 +96,19 @@ namespace SchoolProject.API.Controllers
             return Ok(response);
         }
 
+        [HttpGet("{classID}/peopleInClass")]
+        public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPeopleInClass(Guid classID)
+        {
+            var response = await _personService.GetPeopleInClass(classID);
+
+            if (response.Data is null)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
+        }
+
         [HttpPost("AddPerson")]
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> AddPerson(AddPersonDto newPerson)
         {

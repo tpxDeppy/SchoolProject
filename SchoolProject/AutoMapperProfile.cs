@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SchoolProject.API.DataTransferObjs.Class;
 using SchoolProject.API.DataTransferObjs.Person;
 using SchoolProject.API.DataTransferObjs.School;
 using SchoolProject.BL.Models;
@@ -13,6 +14,8 @@ namespace SchoolProject.API
             CreateMap<AddPersonDto, Person>();
             CreateMap<School, GetSchoolDto>();
             CreateMap<AddSchoolDto, School>();
+            CreateMap<Class, GetClassDto>();
+            CreateMap<AddClassDto, Class>();
         }
 
 
