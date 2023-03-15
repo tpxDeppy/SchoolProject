@@ -2,6 +2,7 @@
 using SchoolProject.API.DataTransferObjs.Person;
 using SchoolProject.BL.Models;
 using SchoolProject.BL.Models.Enums;
+using System.Linq;
 
 namespace SchoolProject.API.Services.PersonService
 {
@@ -131,12 +132,45 @@ namespace SchoolProject.API.Services.PersonService
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
-                    throw new Exception($"School with '{schoolID}' could not be found.");
+                    throw new Exception($"School with ID of '{schoolID}' could not be found.");
                 }
 
                 serviceResponse.Data = dbPeople.Select(p => _mapper.Map<GetPersonDto>(p))
                                                .Where(p => p.School_ID == schoolID)
                                                .ToList();
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<List<GetPersonDto>>> GetPeopleInClass(Guid classID)
+        {
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+
+            try
+            {
+                var dbClass = await _dataContext.Class.ToListAsync();
+                var dbPersonClass = await _dataContext.PersonClass.ToListAsync();
+                var dbPerson = await _dataContext.Person.ToListAsync();
+
+                if (dbPersonClass is null)
+                {
+                    throw new Exception($"Class with ID of '{classID}' could not be found.");
+                }
+
+                serviceResponse.Data = ( from c in dbClass
+                                         join pc in dbPersonClass
+                                         on c.Class_ID equals pc.Class_ID
+                                         join p in dbPerson
+                                         on pc.User_ID equals p.User_ID
+                                         select _mapper.Map<GetPersonDto>(p)
+                                        ).ToList();
+
             }
             catch (Exception ex)
             {
@@ -222,6 +256,5 @@ namespace SchoolProject.API.Services.PersonService
 
             return serviceResponse;
         }
-
     }
 }

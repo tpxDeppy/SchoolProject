@@ -1,13 +1,20 @@
 global using Microsoft.EntityFrameworkCore;
 global using SchoolProject.DAL;
+using SchoolProject.API.Services.ClassService;
 using SchoolProject.API.Services.PersonService;
 using SchoolProject.API.Services.SchoolService;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+//Fixing error: 'A possible object cycle was detected' from GetPeopleInClass
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -15,6 +22,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ISchoolService, SchoolService>();
+builder.Services.AddScoped<IClassService, ClassService>();
 
 //Dependency Injection for DbContext
 builder.Services.AddDbContext<DataContext>(
