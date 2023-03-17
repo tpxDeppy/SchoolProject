@@ -1,8 +1,11 @@
 global using Microsoft.EntityFrameworkCore;
 global using SchoolProject.DAL;
+using FluentValidation;
 using SchoolProject.API.Services.ClassService;
 using SchoolProject.API.Services.PersonService;
 using SchoolProject.API.Services.SchoolService;
+using SchoolProject.API.Services.Validation;
+using SchoolProject.BL.Models;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +26,8 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ISchoolService, SchoolService>();
 builder.Services.AddScoped<IClassService, ClassService>();
+//Registering Validator for Person
+builder.Services.AddScoped<IValidator<Person>, PersonValidator>();
 
 //Dependency Injection for DbContext
 builder.Services.AddDbContext<DataContext>(

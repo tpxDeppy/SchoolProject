@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
 using SchoolProject.API.DataTransferObjs.Person;
 using SchoolProject.BL.Models;
 using SchoolProject.BL.Models.Enums;
+using System;
 using System.Linq;
 
 namespace SchoolProject.API.Services.PersonService
@@ -10,11 +13,13 @@ namespace SchoolProject.API.Services.PersonService
     {
         private readonly DataContext _dataContext;
         private readonly IMapper _mapper;
+        private readonly IValidator<Person> _validator;
 
-        public PersonService(DataContext dataContext, IMapper mapper) 
+        public PersonService(DataContext dataContext, IMapper mapper, IValidator<Person> validator) 
         {
             _dataContext = dataContext;
             _mapper = mapper;
+            _validator = validator;
         }
 
         public async Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople()
@@ -186,9 +191,14 @@ namespace SchoolProject.API.Services.PersonService
             var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
             var person = _mapper.Map<Person>(newPerson);
 
-            _dataContext.Person.Add(person);
-            await _dataContext.SaveChangesAsync();
+            ValidationResult validationResult = await _validator.ValidateAsync(person);
 
+            if (validationResult.IsValid)
+            {
+                _dataContext.Person.Add(person);
+                await _dataContext.SaveChangesAsync();
+            }
+            
             serviceResponse.Data = 
                 await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
             return serviceResponse;
@@ -198,32 +208,33 @@ namespace SchoolProject.API.Services.PersonService
         {
             var serviceResponse = new ServiceResponse<GetPersonDto>();
 
-            try
+            //attempted validation but I get Validation error when run it
+            //ValidationResult validationResult = await _validator.ValidateAsync(_mapper.Map<Person>(updatedPerson));
+
+            //if (!validationResult.IsValid)
+            //{
+            //    serviceResponse.Success = false;
+            //    serviceResponse.Message = "Validation error.";
+            //    return serviceResponse;
+            //}
+
+            var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == updatedPerson.User_ID);
+
+            if (dbPerson is null)
             {
-                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == updatedPerson.User_ID);
+                throw new Exception($"Person with ID '{updatedPerson.User_ID}' could not be found.");
+            }
+
+            dbPerson.First_name = updatedPerson.First_name;
+            dbPerson.Last_name = updatedPerson.Last_name;
+            dbPerson.User_type = updatedPerson.User_type;
+            dbPerson.Date_of_birth = updatedPerson.Date_of_birth;
+            dbPerson.Year_group = updatedPerson.Year_group;
                 
-                if (dbPerson is null)
-                {
-                    throw new Exception($"Person with ID '{updatedPerson.User_ID}' could not be found.");
-                }
+            await _dataContext.SaveChangesAsync();
+                
 
-                dbPerson.First_name = updatedPerson.First_name;
-                dbPerson.Last_name = updatedPerson.Last_name;
-                dbPerson.User_type = updatedPerson.User_type;
-                dbPerson.Date_of_birth = updatedPerson.Date_of_birth;
-                dbPerson.Year_group = updatedPerson.Year_group;
-
-                await _dataContext.SaveChangesAsync();
-
-                serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
-
-            }
-            catch (Exception ex)
-            {
-                serviceResponse.Success = false;
-                serviceResponse.Message = ex.Message;
-            }
-
+            serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
             return serviceResponse;
         }
 

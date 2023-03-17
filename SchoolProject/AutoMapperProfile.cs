@@ -12,6 +12,7 @@ namespace SchoolProject.API
         {
             CreateMap<Person, GetPersonDto>();
             CreateMap<AddPersonDto, Person>();
+            CreateMap<UpdatePersonDto, Person>();
             CreateMap<School, GetSchoolDto>();
             CreateMap<AddSchoolDto, School>();
             CreateMap<Class, GetClassDto>();
