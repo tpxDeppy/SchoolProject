@@ -12,5 +12,7 @@ namespace SchoolProject.API.DataTransferObjs.Person
         public DateTime? Date_of_birth { get; set; }
         public int? Year_group { get; set; }
 
+        public Guid School_ID { get; set; }
+
     }
 }

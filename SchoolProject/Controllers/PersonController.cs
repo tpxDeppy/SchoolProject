@@ -88,7 +88,7 @@ namespace SchoolProject.API.Controllers
         {
             var response = await _personService.GetPeopleFromSchool(schoolID);
 
-            if (response.Data is null)
+            if (response.Data is null || response.Data.Count == 0)
             {
                 return NotFound(response.Message);
             }
@@ -101,7 +101,20 @@ namespace SchoolProject.API.Controllers
         {
             var response = await _personService.GetPeopleInClass(classID);
 
-            if (response.Data is null)
+            if (response.Data is null || response.Data.Count == 0)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("{className}/peopleInClassByName")]
+        public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPeopleInClassByName(string className)
+        {
+            var response = await _personService.GetPeopleInClassByName(className);
+
+            if (response.Data is null || response.Data.Count == 0)
             {
                 return NotFound(response.Message);
             }

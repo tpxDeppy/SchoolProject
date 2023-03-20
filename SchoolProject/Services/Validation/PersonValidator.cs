@@ -24,14 +24,12 @@ namespace SchoolProject.API.Services.Validation
                 .Length(3, 30).WithMessage("Last name must be between 3 and 30 characters.");
 
             RuleFor(person => person.User_type)
-                .NotNull().WithMessage("Please select a user type...")
-                .NotEmpty().WithMessage("Please select a user type...")
                 .Must(IsValidUserType).WithMessage("Please select a valid user type...")
                 .IsInEnum();
 
             RuleFor(person => person.School_ID)
-                .NotNull().WithMessage("Please enter a valid ID")
-                .NotEmpty().WithMessage("Please enter a valid ID")
+                .NotNull().WithMessage("Please enter an ID")
+                .NotEmpty().WithMessage("Please enter an ID")
                 .Must(IsValidSchoolID).WithMessage("Please enter a valid School ID");
 
             RuleFor(person => person.Date_of_birth)
@@ -42,6 +40,7 @@ namespace SchoolProject.API.Services.Validation
                 .NotEmpty()
                 .When(person => person.User_type == UserType.Pupil)
                 .Must(date => date >= new DateTime(2005, 1, 1) && date <= new DateTime(2018, 12, 31))
+                .When(person => person.User_type == UserType.Pupil)
                 .WithMessage("Age of pupil must be between 5 and 18 years old. Please enter a valid date of birth.");
 
             RuleFor(person => person.Year_group)
@@ -52,13 +51,17 @@ namespace SchoolProject.API.Services.Validation
                 .NotEmpty()
                 .When(person => person.User_type == UserType.Pupil)
                 .InclusiveBetween(1, 13)
+                .When(person => person.User_type == UserType.Pupil)
                 .WithMessage("Please select a year group between 1 and 13.");
         }
 
         private bool IsValidUserType(UserType userType)
         {
-            return _dataContext.Set<Person>()
-                               .Any(p => p.User_type == userType);
+            foreach (UserType type in Enum.GetValues(typeof(UserType)))
+            {
+                if (userType == type) return true;
+            }
+            return false;
         }
 
         private bool IsValidSchoolID(Guid schoolID)

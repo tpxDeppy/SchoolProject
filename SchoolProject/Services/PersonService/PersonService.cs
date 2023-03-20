@@ -108,7 +108,7 @@ namespace SchoolProject.API.Services.PersonService
             {
                 var dbPupils = await _dataContext.Person.ToListAsync();
 
-                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
+                if (dbPupils is null)
                 {
                     throw new Exception($"Could not find pupils in this '{yearGroup}' year group.");
                 }
@@ -135,14 +135,14 @@ namespace SchoolProject.API.Services.PersonService
             {
                 var dbPeople = await _dataContext.Person.ToListAsync();
 
-                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
-                {
-                    throw new Exception($"School with ID of '{schoolID}' could not be found.");
-                }
-
                 serviceResponse.Data = dbPeople.Select(p => _mapper.Map<GetPersonDto>(p))
                                                .Where(p => p.School_ID == schoolID)
                                                .ToList();
+
+                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
+                {
+                    throw new Exception($"Could not find people in the school with ID of '{schoolID}'.");
+                }
             }
             catch (Exception ex)
             {
@@ -163,18 +163,53 @@ namespace SchoolProject.API.Services.PersonService
                 var dbPersonClass = await _dataContext.PersonClass.ToListAsync();
                 var dbPerson = await _dataContext.Person.ToListAsync();
 
-                if (dbPersonClass is null)
-                {
-                    throw new Exception($"Class with ID of '{classID}' could not be found.");
-                }
-
                 serviceResponse.Data = ( from c in dbClass
                                          join pc in dbPersonClass
                                          on c.Class_ID equals pc.Class_ID
                                          join p in dbPerson
                                          on pc.User_ID equals p.User_ID
-                                         select _mapper.Map<GetPersonDto>(p)
+                                         where c.Class_ID == classID
+                                         select _mapper.Map<GetPersonDto>(p)                                         
                                         ).ToList();
+
+                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
+                {
+                    throw new Exception($"Could not find people in the class with ID of '{classID}'.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<List<GetPersonDto>>> GetPeopleInClassByName(string className)
+        {
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+
+            try
+            {
+                var dbClass = await _dataContext.Class.ToListAsync();
+                var dbPersonClass = await _dataContext.PersonClass.ToListAsync();
+                var dbPerson = await _dataContext.Person.ToListAsync();
+
+                serviceResponse.Data = (from c in dbClass
+                                        join pc in dbPersonClass
+                                        on c.Class_ID equals pc.Class_ID
+                                        join p in dbPerson
+                                        on pc.User_ID equals p.User_ID
+                                        where c.Class_name == className
+                                        select _mapper.Map<GetPersonDto>(p)
+                                        ).ToList();
+
+                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
+                {
+                    throw new Exception($"Could not find people in the class with the name of '{className}'.");
+                }
 
             }
             catch (Exception ex)
@@ -193,12 +228,16 @@ namespace SchoolProject.API.Services.PersonService
 
             ValidationResult validationResult = await _validator.ValidateAsync(person);
 
-            if (validationResult.IsValid)
+            if (!validationResult.IsValid)
             {
-                _dataContext.Person.Add(person);
-                await _dataContext.SaveChangesAsync();
+                serviceResponse.Success = false;
+                serviceResponse.Message = "Validation error.";
+                return serviceResponse;
             }
-            
+
+            _dataContext.Person.Add(person);
+            await _dataContext.SaveChangesAsync();
+
             serviceResponse.Data = 
                 await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
             return serviceResponse;
@@ -208,15 +247,14 @@ namespace SchoolProject.API.Services.PersonService
         {
             var serviceResponse = new ServiceResponse<GetPersonDto>();
 
-            //attempted validation but I get Validation error when run it
-            //ValidationResult validationResult = await _validator.ValidateAsync(_mapper.Map<Person>(updatedPerson));
+            ValidationResult validationResult = await _validator.ValidateAsync(_mapper.Map<Person>(updatedPerson));
 
-            //if (!validationResult.IsValid)
-            //{
-            //    serviceResponse.Success = false;
-            //    serviceResponse.Message = "Validation error.";
-            //    return serviceResponse;
-            //}
+            if (!validationResult.IsValid)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = "Validation error.";
+                return serviceResponse;
+            }
 
             var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == updatedPerson.User_ID);
 
@@ -230,6 +268,7 @@ namespace SchoolProject.API.Services.PersonService
             dbPerson.User_type = updatedPerson.User_type;
             dbPerson.Date_of_birth = updatedPerson.Date_of_birth;
             dbPerson.Year_group = updatedPerson.Year_group;
+            dbPerson.School_ID = updatedPerson.School_ID;
                 
             await _dataContext.SaveChangesAsync();
                 
