@@ -1,15 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SchoolProject.BL.Models;
-using SchoolProject.BL.Models.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
+using SchoolProject.Models.Entities;
 
-namespace SchoolProject.DAL.EntitiesConfiguration
+namespace SchoolProject.Data.EntitiesConfiguration
 {
     public class SchoolConfig : IEntityTypeConfiguration<School>
     {

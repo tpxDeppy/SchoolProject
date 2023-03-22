@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SchoolProject.BL.Models;
-using SchoolProject.BL.Models.Enums;
-using SchoolProject.DAL.EntitiesConfiguration;
+using SchoolProject.Data.EntitiesConfiguration;
+using SchoolProject.Models.Entities;
 
-namespace SchoolProject.DAL
+namespace SchoolProject.Data
 {
     public class DataContext : DbContext
     {
