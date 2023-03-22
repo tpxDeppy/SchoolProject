@@ -7,16 +7,20 @@ namespace SchoolProject.DAL
 {
     public class DataContext : DbContext
     {
+        public DataContext()
+        {
+            
+        }
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
             
         }
 
         //the name of the DbSet will be the name of the corresponding database table
-        public DbSet<Person> Person { get; set; }
-        public DbSet<School> School { get; set; }
-        public DbSet<Class> Class { get; set; }
-        public DbSet<PersonClass> PersonClass { get; set; }
+        public virtual DbSet<Person> Person { get; set; }
+        public virtual DbSet<School> School { get; set; }
+        public virtual DbSet<Class> Class { get; set; }
+        public virtual DbSet<PersonClass> PersonClass { get; set; }
 
         //configuring relationships
         protected override void OnModelCreating(ModelBuilder modelBuilder)
