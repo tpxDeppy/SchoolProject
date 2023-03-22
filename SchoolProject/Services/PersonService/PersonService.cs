@@ -31,9 +31,9 @@ namespace SchoolProject.API.Services.PersonService
                 var dbPeople = await _dataContext.Person.ToListAsync();
                 serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
 
-                if (dbPeople is null)
+                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
-                    throw new Exception($"Could not find any data...");
+                    throw new Exception("Could not find any data...");
                 }
             }
             catch (Exception ex)
