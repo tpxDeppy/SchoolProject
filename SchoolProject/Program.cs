@@ -1,12 +1,11 @@
 global using Microsoft.EntityFrameworkCore;
-global using SchoolProject.DAL;
+using SchoolProject.Data;
 using FluentValidation;
-using SchoolProject.API.Services.ClassService;
-using SchoolProject.API.Services.PersonService;
-using SchoolProject.API.Services.SchoolService;
-using SchoolProject.API.Services.Validation;
-using SchoolProject.BL.Models;
+using SchoolProject.Services.Validation;
 using System.Text.Json.Serialization;
+using SchoolProject.Services.Interfaces;
+using SchoolProject.Services.Implementations;
+using SchoolProject.Models.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +21,7 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 //Registering AutoMapper
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<ISchoolService, SchoolService>();
 builder.Services.AddScoped<IClassService, ClassService>();

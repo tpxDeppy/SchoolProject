@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SchoolProject.API.DataTransferObjs.School;
-using SchoolProject.API.Services.SchoolService;
+using SchoolProject.Services.Interfaces;
+using SchoolProject.Models.DataTransferObjs.School;
 
 namespace SchoolProject.API.Controllers
 {

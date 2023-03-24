@@ -1,9 +1,8 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Mvc;
-using SchoolProject.API.DataTransferObjs.Person;
-using SchoolProject.API.Services.PersonService;
-using SchoolProject.BL.Models;
-using SchoolProject.BL.Models.Enums;
+﻿using Microsoft.AspNetCore.Mvc;
+using SchoolProject.Services.Interfaces;
+using SchoolProject.Models.DataTransferObjs.Person;
+using SchoolProject.Models.Entities;
+using SchoolProject.Models.Entities.Enums;
 
 namespace SchoolProject.API.Controllers
 {
