@@ -7,6 +7,7 @@ using SchoolProject.Models.Entities.Enums;
 using SchoolProject.Data;
 using SchoolProject.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Azure;
 
 namespace SchoolProject.Services.Implementations
 {
@@ -232,13 +233,14 @@ namespace SchoolProject.Services.Implementations
             if (!validationResult.IsValid)
             {
                 serviceResponse.Success = false;
-                serviceResponse.Message = "Validation error.";
+                serviceResponse.Message = "Validation error. Person was not saved.";
                 return serviceResponse;
             }
 
             _dataContext.Person.Add(person);
             await _dataContext.SaveChangesAsync();
 
+            serviceResponse.Message = $"Successfully created new person with the first name of '{newPerson.First_name}'.";
             serviceResponse.Data =
                 await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
             return serviceResponse;
@@ -253,28 +255,37 @@ namespace SchoolProject.Services.Implementations
             if (!validationResult.IsValid)
             {
                 serviceResponse.Success = false;
-                serviceResponse.Message = "Validation error.";
+                serviceResponse.Message = "Validation error. Person was not updated.";
                 return serviceResponse;
             }
 
-            var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == updatedPerson.User_ID);
-
-            if (dbPerson is null)
+            try
             {
-                throw new Exception($"Person with ID '{updatedPerson.User_ID}' could not be found.");
+                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == updatedPerson.User_ID);
+
+                if (dbPerson is null)
+                {
+                    throw new Exception($"Person with ID '{updatedPerson.User_ID}' could not be found.");
+                }
+
+                dbPerson.First_name = updatedPerson.First_name;
+                dbPerson.Last_name = updatedPerson.Last_name;
+                dbPerson.User_type = updatedPerson.User_type;
+                dbPerson.Date_of_birth = updatedPerson.Date_of_birth;
+                dbPerson.Year_group = updatedPerson.Year_group;
+                dbPerson.School_ID = updatedPerson.School_ID;
+
+                await _dataContext.SaveChangesAsync();
+
+                serviceResponse.Message = "Successfully updated.";
+                serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
             }
-
-            dbPerson.First_name = updatedPerson.First_name;
-            dbPerson.Last_name = updatedPerson.Last_name;
-            dbPerson.User_type = updatedPerson.User_type;
-            dbPerson.Date_of_birth = updatedPerson.Date_of_birth;
-            dbPerson.Year_group = updatedPerson.Year_group;
-            dbPerson.School_ID = updatedPerson.School_ID;
-
-            await _dataContext.SaveChangesAsync();
-
-
-            serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+            
             return serviceResponse;
         }
 

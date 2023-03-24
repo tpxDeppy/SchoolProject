@@ -4,6 +4,7 @@ using SchoolProject.Data;
 using SchoolProject.Models.Entities;
 using SchoolProject.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Azure;
 
 namespace SchoolProject.Services.Implementations
 {
@@ -96,6 +97,7 @@ namespace SchoolProject.Services.Implementations
             _dataContext.Class.Add(nClass);
             await _dataContext.SaveChangesAsync();
 
+            serviceResponse.Message = $"Successfully created a class with the name of '{newClass.Class_name}'.";
             serviceResponse.Data =
                 await _dataContext.Class.Select(c => _mapper.Map<GetClassDto>(c)).ToListAsync();
 
@@ -120,6 +122,7 @@ namespace SchoolProject.Services.Implementations
 
                 await _dataContext.SaveChangesAsync();
 
+                serviceResponse.Message = "Successfully updated.";
                 serviceResponse.Data = _mapper.Map<GetClassDto>(dbClass);
 
             }

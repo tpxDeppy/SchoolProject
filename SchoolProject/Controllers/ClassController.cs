@@ -58,12 +58,18 @@ namespace SchoolProject.API.Controllers
         [HttpPost("AddClass")]
         public async Task<ActionResult<List<GetClassDto>>> AddClass(AddClassDto newClass)
         {
-            return Ok(await _classService.AddClass(newClass));
+            var response = await _classService.AddClass(newClass);
+            return Created(nameof(GetClassById), response);
         }
 
-        [HttpPut]
-        public async Task<ActionResult<GetClassDto>> UpdateClass(UpdateClassDto updatedClass)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<GetClassDto>> UpdateClass(Guid id, UpdateClassDto updatedClass)
         {
+            if (id != updatedClass.Class_ID)
+            {
+                return BadRequest("Bad request. Please check that the IDs match.");
+            }
+
             var response = await _classService.UpdateClass(updatedClass);
 
             if (response.Data is null)
@@ -84,7 +90,7 @@ namespace SchoolProject.API.Controllers
                 return NotFound(response.Message);
             }
 
-            return Ok(response);
+            return Ok($"Class with ID of '{id}' was successfully deleted.");
         }
     }
 }
