@@ -57,12 +57,18 @@ namespace SchoolProject.API.Controllers
         [HttpPost("AddSchool")]
         public async Task<ActionResult<List<GetSchoolDto>>> AddSchool(AddSchoolDto newSchool)
         {
-            return Ok(await _schoolService.AddSchool(newSchool));
+            var response = await _schoolService.AddSchool(newSchool);
+            return Created(nameof(GetSchoolById), response);
         }
 
-        [HttpPut]
-        public async Task<ActionResult<GetSchoolDto>> UpdateSchool(UpdateSchoolDto updatedSchool)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<GetSchoolDto>> UpdateSchool(Guid id, UpdateSchoolDto updatedSchool)
         {
+            if (id != updatedSchool.School_ID)
+            {
+                return BadRequest("Bad request. Please check that the IDs match.");
+            }
+
             var response = await _schoolService.UpdateSchool(updatedSchool);
 
             if (response.Data is null)
@@ -83,7 +89,7 @@ namespace SchoolProject.API.Controllers
                 return NotFound(response.Message);
             }
 
-            return Ok(response);
+            return Ok($"School with ID of '{id}' was successfully deleted.");
         }
     }
 }
