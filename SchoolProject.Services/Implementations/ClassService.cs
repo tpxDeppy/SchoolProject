@@ -4,7 +4,6 @@ using SchoolProject.Data;
 using SchoolProject.Models.Entities;
 using SchoolProject.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Azure;
 
 namespace SchoolProject.Services.Implementations
 {
@@ -117,8 +116,7 @@ namespace SchoolProject.Services.Implementations
                     throw new Exception($"Class with ID of '{updatedClass.Class_ID}' could not be found.");
                 }
 
-                dbClass.Class_name = updatedClass.Class_name;
-                dbClass.Class_description = updatedClass.Class_description;
+                dbClass = _mapper.Map(updatedClass, dbClass);
 
                 await _dataContext.SaveChangesAsync();
 

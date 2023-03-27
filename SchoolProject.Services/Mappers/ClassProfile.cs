@@ -10,6 +10,7 @@ namespace SchoolProject.Services.Mappers
         {
             CreateMap<Class, GetClassDto>();
             CreateMap<AddClassDto, Class>();
+            CreateMap<UpdateClassDto, Class>();
         }
     }
 }
