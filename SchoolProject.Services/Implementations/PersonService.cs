@@ -166,14 +166,16 @@ namespace SchoolProject.Services.Implementations
                 var dbPersonClass = await _dataContext.PersonClass.ToListAsync();
                 var dbPerson = await _dataContext.Person.ToListAsync();
 
-                serviceResponse.Data = (from c in dbClass
-                                        join pc in dbPersonClass
-                                        on c.Class_ID equals pc.Class_ID
-                                        join p in dbPerson
-                                        on pc.User_ID equals p.User_ID
-                                        where c.Class_ID == classID
-                                        select _mapper.Map<GetPersonDto>(p)
-                                        ).ToList();
+                serviceResponse.Data = dbClass
+                                        .Join(dbPersonClass, 
+                                            c => c.Class_ID, pc => pc.Class_ID,
+                                            (c, pc) => new { Class = c, PersonClass = pc })
+                                        .Join(dbPerson, 
+                                            cp => cp.PersonClass.User_ID, p => p.User_ID,                                                                              
+                                            (cp, p) => new { cp.Class, Person = p })
+                                        .Where(i => i.Class.Class_ID == classID)
+                                        .Select(p => _mapper.Map<GetPersonDto>(p.Person))
+                                        .ToList();
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
@@ -200,14 +202,16 @@ namespace SchoolProject.Services.Implementations
                 var dbPersonClass = await _dataContext.PersonClass.ToListAsync();
                 var dbPerson = await _dataContext.Person.ToListAsync();
 
-                serviceResponse.Data = (from c in dbClass
-                                        join pc in dbPersonClass
-                                        on c.Class_ID equals pc.Class_ID
-                                        join p in dbPerson
-                                        on pc.User_ID equals p.User_ID
-                                        where c.Class_name == className
-                                        select _mapper.Map<GetPersonDto>(p)
-                                        ).ToList();
+                serviceResponse.Data = dbClass
+                                        .Join(dbPersonClass,
+                                            c => c.Class_ID, pc => pc.Class_ID,
+                                            (c, pc) => new { Class = c, PersonClass = pc })
+                                        .Join(dbPerson,
+                                            cp => cp.PersonClass.User_ID, p => p.User_ID,
+                                            (cp, p) => new { cp.Class, Person = p })
+                                        .Where(n => n.Class.Class_name == className)
+                                        .Select(p => _mapper.Map<GetPersonDto>(p.Person))
+                                        .ToList();
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
