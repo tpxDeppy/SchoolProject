@@ -4,7 +4,6 @@ using SchoolProject.Data;
 using SchoolProject.Models.Entities;
 using SchoolProject.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Azure;
 
 namespace SchoolProject.Services.Implementations
 {
@@ -115,7 +114,7 @@ namespace SchoolProject.Services.Implementations
                     throw new Exception($"School with ID of '{updatedSchool.School_ID}' could not be found.");
                 }
 
-                dbSchool.School_name = updatedSchool.School_name;
+                dbSchool = _mapper.Map(updatedSchool, dbSchool);
 
                 await _dataContext.SaveChangesAsync();
 

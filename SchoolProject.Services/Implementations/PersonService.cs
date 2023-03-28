@@ -7,7 +7,6 @@ using SchoolProject.Models.Entities.Enums;
 using SchoolProject.Data;
 using SchoolProject.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Azure;
 
 namespace SchoolProject.Services.Implementations
 {
@@ -98,7 +97,9 @@ namespace SchoolProject.Services.Implementations
             var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
             var dbPeople = await _dataContext.Person.ToListAsync();
             serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>)
-                                           .Where(p => p.User_type == userType).ToList();
+                                           .Where(p => p.User_type == userType)
+                                           .ToList();
+
             return serviceResponse;
         }
 
@@ -116,8 +117,8 @@ namespace SchoolProject.Services.Implementations
                 }
 
                 serviceResponse.Data = dbPupils.Select(_mapper.Map<GetPersonDto>)
-                                           .Where(p => p.User_type == UserType.Pupil
-                                                    && p.Year_group == yearGroup).ToList();
+                                               .Where(p => p.User_type == UserType.Pupil && p.Year_group == yearGroup)
+                                               .ToList();
 
             }
             catch (Exception ex)
@@ -268,12 +269,7 @@ namespace SchoolProject.Services.Implementations
                     throw new Exception($"Person with ID '{updatedPerson.User_ID}' could not be found.");
                 }
 
-                dbPerson.First_name = updatedPerson.First_name;
-                dbPerson.Last_name = updatedPerson.Last_name;
-                dbPerson.User_type = updatedPerson.User_type;
-                dbPerson.Date_of_birth = updatedPerson.Date_of_birth;
-                dbPerson.Year_group = updatedPerson.Year_group;
-                dbPerson.School_ID = updatedPerson.School_ID;
+                dbPerson = _mapper.Map(updatedPerson, dbPerson);
 
                 await _dataContext.SaveChangesAsync();
 
