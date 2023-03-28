@@ -162,20 +162,12 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbClass = await _dataContext.Class.ToListAsync();
-                var dbPersonClass = await _dataContext.PersonClass.ToListAsync();
-                var dbPerson = await _dataContext.Person.ToListAsync();
+                var dbPeopleInClass = await _dataContext.Person
+                                            .Include(pc => pc.PersonClasses)
+                                            .Where(p => p.PersonClasses.Any(pc => pc.Class_ID == classID))
+                                            .ToListAsync();                                            
 
-                serviceResponse.Data = dbClass
-                                        .Join(dbPersonClass, 
-                                            c => c.Class_ID, pc => pc.Class_ID,
-                                            (c, pc) => new { Class = c, PersonClass = pc })
-                                        .Join(dbPerson, 
-                                            cp => cp.PersonClass.User_ID, p => p.User_ID,                                                                              
-                                            (cp, p) => new { cp.Class, Person = p })
-                                        .Where(i => i.Class.Class_ID == classID)
-                                        .Select(p => _mapper.Map<GetPersonDto>(p.Person))
-                                        .ToList();
+                serviceResponse.Data = dbPeopleInClass.Select(_mapper.Map<GetPersonDto>).ToList();
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
@@ -198,20 +190,12 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbClass = await _dataContext.Class.ToListAsync();
-                var dbPersonClass = await _dataContext.PersonClass.ToListAsync();
-                var dbPerson = await _dataContext.Person.ToListAsync();
+                var dbPeopleInClass = await _dataContext.Person
+                                           .Include(pc => pc.PersonClasses)
+                                           .Where(p => p.PersonClasses.Any(pc => pc.Class.Class_name == className))
+                                           .ToListAsync();
 
-                serviceResponse.Data = dbClass
-                                        .Join(dbPersonClass,
-                                            c => c.Class_ID, pc => pc.Class_ID,
-                                            (c, pc) => new { Class = c, PersonClass = pc })
-                                        .Join(dbPerson,
-                                            cp => cp.PersonClass.User_ID, p => p.User_ID,
-                                            (cp, p) => new { cp.Class, Person = p })
-                                        .Where(n => n.Class.Class_name == className)
-                                        .Select(p => _mapper.Map<GetPersonDto>(p.Person))
-                                        .ToList();
+                serviceResponse.Data = dbPeopleInClass.Select(_mapper.Map<GetPersonDto>).ToList();
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
