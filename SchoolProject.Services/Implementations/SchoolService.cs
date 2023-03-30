@@ -27,7 +27,7 @@ namespace SchoolProject.Services.Implementations
                 var dbSchools = await _dataContext.School.ToListAsync();
                 serviceResponse.Data = dbSchools.Select(_mapper.Map<GetSchoolDto>).ToList();
 
-                if (dbSchools is null)
+                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
                     throw new Exception($"Could not find any school data...");
                 }

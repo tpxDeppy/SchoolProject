@@ -28,7 +28,7 @@ namespace SchoolProject.Services.Implementations
 
                 serviceResponse.Data = dbClasses.Select(_mapper.Map<GetClassDto>).ToList();
 
-                if (dbClasses is null)
+                if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
                     throw new Exception($"Could not find any data...");
                 }
