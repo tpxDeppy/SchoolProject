@@ -141,5 +141,62 @@ namespace SchoolProject.Tests
             Assert.Null(result.Data);
             Assert.NotEmpty(result.Message);
         }
+
+        [Fact]
+        public async Task AddClass_ReturnsValidServiceResponseWithAddedClass_WhenValidInput()
+        {
+            // Arrange
+            var addClassDto = new AddClassDto
+            {
+                Class_name = "New Class",
+                Class_description = "New Class description"
+            };
+
+            var expectedClass = new Class
+            {
+                Class_ID = Guid.NewGuid(),
+                Class_name = "New Class",
+                Class_description = "New Class description"
+            };
+
+            var expectedResponse = new ServiceResponse<List<GetClassDto>>
+            {
+                Success = true,
+                Message = $"Successfully created a class with the name of '{expectedClass.Class_name}'.",
+                Data = new List<GetClassDto>
+                {
+                    new GetClassDto
+                    {
+                        Class_ID = Guid.NewGuid(),
+                        Class_name = "New Class",
+                        Class_description = "New Class description"
+                    }
+                }
+            };
+
+            _mapperMock.Setup(c => c.Map<Class>(addClassDto)).Returns(expectedClass);
+            _mapperMock.Setup(c => c.Map<GetClassDto>(expectedClass)).Returns(expectedResponse.Data[0]);
+            _dataContextMock.Setup(c => c.Class.Add(expectedClass));
+            _dataContextMock.Setup(c => c.SaveChangesAsync(default)).ReturnsAsync(1);
+
+            _dataContextMock.Setup(context => context.Class)
+                            .ReturnsDbSet(new List<Class> { expectedClass }.AsQueryable());
+
+            // Act
+            var result = await _classService.AddClass(addClassDto);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<ServiceResponse<List<GetClassDto>>>(result);
+            Assert.True(result.Success);
+            Assert.Equal(expectedResponse.Message, result.Message);
+            Assert.NotNull(result.Data);
+            Assert.Collection(result.Data, item =>
+            {
+                Assert.Equal(expectedResponse.Data[0].Class_ID, item.Class_ID);
+                Assert.Equal(expectedResponse.Data[0].Class_name, item.Class_name);
+                Assert.Equal(expectedResponse.Data[0].Class_description, item.Class_description);
+            });
+        }
     }
 }

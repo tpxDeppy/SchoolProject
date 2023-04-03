@@ -141,5 +141,58 @@ namespace SchoolProject.Tests
             Assert.Null(result.Data);
             Assert.NotEmpty(result.Message);
         }
+
+        [Fact]
+        public async Task AddSchool_ReturnsValidServiceResponseWithAddedSchool_WhenValidInput()
+        {
+            // Arrange
+            var addSchoolDto = new AddSchoolDto
+            {
+                School_name = "New School"
+            };
+
+            var expectedSchool = new School
+            {
+                School_ID = Guid.NewGuid(),
+                School_name = "New School"
+            };
+
+            var expectedResponse = new ServiceResponse<List<GetSchoolDto>>
+            {
+                Success = true,
+                Message = $"Successfully created a school with the name of '{expectedSchool.School_name}'.",
+                Data = new List<GetSchoolDto>
+                {
+                    new GetSchoolDto
+                    {
+                        School_ID = Guid.NewGuid(),
+                        School_name = "New School"
+                    }
+                }
+            };
+
+            _mapperMock.Setup(s => s.Map<School>(addSchoolDto)).Returns(expectedSchool);
+            _mapperMock.Setup(s => s.Map<GetSchoolDto>(expectedSchool)).Returns(expectedResponse.Data[0]);
+            _dataContextMock.Setup(s => s.School.Add(expectedSchool));
+            _dataContextMock.Setup(s => s.SaveChangesAsync(default)).ReturnsAsync(1);
+
+            _dataContextMock.Setup(context => context.School)
+                            .ReturnsDbSet(new List<School> { expectedSchool }.AsQueryable());
+
+            // Act
+            var result = await _schoolService.AddSchool(addSchoolDto);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<ServiceResponse<List<GetSchoolDto>>>(result);
+            Assert.True(result.Success);
+            Assert.Equal(expectedResponse.Message, result.Message);
+            Assert.NotNull(result.Data);
+            Assert.Collection(result.Data, item =>
+            {
+                Assert.Equal(expectedResponse.Data[0].School_ID, item.School_ID);
+                Assert.Equal(expectedResponse.Data[0].School_name, item.School_name);
+            });
+        }
     }
 }
