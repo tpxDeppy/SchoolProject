@@ -28,7 +28,7 @@ namespace SchoolProject.Tests.Controllers
         {
             _dataContextMock.Setup(p => p.Person).ReturnsDbSet(people);
         }
-
+         
         [Fact]
         public async Task GetAll_ReturnsOk_WhenPeopleExist()
         {
