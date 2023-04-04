@@ -5,15 +5,15 @@ using SchoolProject.Models.DataTransferObjs.School;
 using SchoolProject.Models.Entities;
 using SchoolProject.Services.Implementations;
 
-namespace SchoolProject.Tests
+namespace SchoolProject.Tests.Services
 {
-    public class SchoolControllerTests
+    public class SchoolServiceTests
     {
         private readonly Mock<DataContext> _dataContextMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly SchoolService _schoolService;
 
-        public SchoolControllerTests()
+        public SchoolServiceTests()
         {
             _schoolService = new SchoolService(_dataContextMock.Object, _mapperMock.Object);
         }
@@ -33,7 +33,7 @@ namespace SchoolProject.Tests
                 {
                     School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"),
                     School_name = "Hollywood School"
-                } 
+                }
             };
             DataMockSetup(dbSchools);
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
@@ -73,7 +73,7 @@ namespace SchoolProject.Tests
             //Arrange
             var dbSchools = new List<School>()
             {
-                new School { School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e") } 
+                new School { School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e") }
             };
             DataMockSetup(dbSchools);
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
@@ -81,7 +81,7 @@ namespace SchoolProject.Tests
 
             //Act
             var result = await _schoolService.GetSchoolById(dbSchools[0].School_ID);
-            
+
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);

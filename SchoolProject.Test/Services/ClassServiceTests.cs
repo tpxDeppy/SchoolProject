@@ -5,15 +5,15 @@ using SchoolProject.Models.DataTransferObjs.Class;
 using SchoolProject.Models.Entities;
 using SchoolProject.Services.Implementations;
 
-namespace SchoolProject.Tests
+namespace SchoolProject.Tests.Services
 {
-    public class ClassControllerTests
+    public class ClassServiceTests
     {
         private readonly Mock<DataContext> _dataContextMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly ClassService _classService;
 
-        public ClassControllerTests()
+        public ClassServiceTests()
         {
             _classService = new ClassService(_dataContextMock.Object, _mapperMock.Object);
         }
@@ -28,9 +28,9 @@ namespace SchoolProject.Tests
         {
             //Arrange
             var dbClasses = new List<Class>()
-            { 
+            {
                 new Class
-                { 
+                {
                     Class_ID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
                     Class_name = "Scripting"
                 }
@@ -72,8 +72,8 @@ namespace SchoolProject.Tests
         {
             //Arrange
             var dbClasses = new List<Class>()
-            { 
-                new Class { Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0") } 
+            {
+                new Class { Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0") }
             };
             DataMockSetup(dbClasses);
             _mapperMock.Setup(c => c.Map<GetClassDto>(It.IsAny<Class>()))
