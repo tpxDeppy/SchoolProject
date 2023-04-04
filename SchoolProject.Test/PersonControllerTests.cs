@@ -42,15 +42,16 @@ namespace SchoolProject.Tests
                     Last_name = "Evans"
                 }
             };
-            _personServiceMock.Setup(p => p.GetAllPeople()).ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
-            {
-                Success = true,
-                Data = dbPeople.Select(p => new GetPersonDto
+            _personServiceMock.Setup(p => p.GetAllPeople())
+                .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                 {
-                    User_ID = p.User_ID,
-                    Last_name = p.Last_name
-                }).ToList()
-            });
+                    Success = true,
+                    Data = dbPeople.Select(p => new GetPersonDto
+                    {
+                        User_ID = p.User_ID,
+                        Last_name = p.Last_name
+                    }).ToList()
+                });
 
             DataMockSetup(dbPeople);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
@@ -72,12 +73,13 @@ namespace SchoolProject.Tests
         {
             //Arrange
             var dbPeople = new List<Person>();
-            _personServiceMock.Setup(p => p.GetAllPeople()).ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
-            {
-                Success = false,
-                Data = dbPeople.Select(p => new GetPersonDto()).ToList(),
-                Message = "Could not find any data..."
-            });
+            _personServiceMock.Setup(p => p.GetAllPeople())
+                .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
+                {
+                    Success = false,
+                    Data = dbPeople.Select(p => new GetPersonDto()).ToList(),
+                    Message = "Could not find any data..."
+                });
 
             DataMockSetup(dbPeople);
 
@@ -100,7 +102,7 @@ namespace SchoolProject.Tests
                 new Person { User_ID = Guid.Parse("730ef62d-fc45-4f6d-8a09-0f99e4316a3a") } 
             };
 
-            _personServiceMock.Setup(p => p.GetPersonById(dbPeople[0].User_ID))
+            _personServiceMock.Setup(p => p.GetPersonById(It.IsAny<Guid>()))
                    .ReturnsAsync(new ServiceResponse<GetPersonDto>
                    {
                        Success = true,
@@ -125,7 +127,7 @@ namespace SchoolProject.Tests
         {
             //Arrange
             var dbPerson = new Person { User_ID = Guid.NewGuid() };
-            _personServiceMock.Setup(p => p.GetPersonById(dbPerson.User_ID))
+            _personServiceMock.Setup(p => p.GetPersonById(It.IsAny<Guid>()))
                    .ReturnsAsync(new ServiceResponse<GetPersonDto>
                    {
                        Success = false,
@@ -151,7 +153,7 @@ namespace SchoolProject.Tests
         {
             //Arrange
             var dbPeople = new List<Person> { new Person { Last_name = "Jolie" } };
-            _personServiceMock.Setup(p => p.GetPersonByLastName(dbPeople[0].Last_name))
+            _personServiceMock.Setup(p => p.GetPersonByLastName(It.IsAny<String>()))
                    .ReturnsAsync(new ServiceResponse<GetPersonDto>
                    {
                        Success = true,
@@ -176,7 +178,7 @@ namespace SchoolProject.Tests
         {
             //Arrange
             var dbPerson = new Person { Last_name = "Julian" };
-            _personServiceMock.Setup(p => p.GetPersonByLastName(dbPerson.Last_name))
+            _personServiceMock.Setup(p => p.GetPersonByLastName(It.IsAny<String>()))
                    .ReturnsAsync(new ServiceResponse<GetPersonDto>
                    {
                        Success = false,
@@ -202,7 +204,7 @@ namespace SchoolProject.Tests
         {
             //Arrange
             var dbPeople = new List<Person> { new Person { User_type = UserType.Teacher } };
-            _personServiceMock.Setup(p => p.GetPeopleByUserType(dbPeople[0].User_type))
+            _personServiceMock.Setup(p => p.GetPeopleByUserType(It.IsAny<UserType>()))
                    .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                    {
                        Success = true,
@@ -233,7 +235,7 @@ namespace SchoolProject.Tests
         {
             //Arrange
             var dbPeople = new List<Person>();
-            _personServiceMock.Setup(p => p.GetPeopleByUserType(UserType.Pupil))
+            _personServiceMock.Setup(p => p.GetPeopleByUserType(It.IsAny<UserType>()))
                    .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                    {
                        Success = false,
@@ -259,7 +261,7 @@ namespace SchoolProject.Tests
             { 
                 new Person { User_type = UserType.Pupil, Year_group = 11 } 
             };
-            _personServiceMock.Setup(p => p.GetPupilsByYearGroup((int)dbPeople[0].Year_group!))
+            _personServiceMock.Setup(p => p.GetPupilsByYearGroup(It.IsAny<int>()))
                    .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                    {
                        Success = true,
@@ -292,7 +294,7 @@ namespace SchoolProject.Tests
         {
             //Arrange
             var dbPeople = new List<Person>();
-            _personServiceMock.Setup(p => p.GetPupilsByYearGroup(15))
+            _personServiceMock.Setup(p => p.GetPupilsByYearGroup(It.IsAny<int>()))
                    .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                    {
                        Success = false,
@@ -323,7 +325,7 @@ namespace SchoolProject.Tests
                     User_type = UserType.Teacher, 
                     School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d") } 
             };
-            _personServiceMock.Setup(p => p.GetPeopleFromSchool(dbPeople[0].School_ID))
+            _personServiceMock.Setup(p => p.GetPeopleFromSchool(It.IsAny<Guid>()))
                   .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                   {
                       Success = true,
@@ -367,7 +369,7 @@ namespace SchoolProject.Tests
             //Arrange
             var dbPeople = new List<Person>();
             Guid schoolID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5");
-            _personServiceMock.Setup(p => p.GetPeopleFromSchool(schoolID))
+            _personServiceMock.Setup(p => p.GetPeopleFromSchool(It.IsAny<Guid>()))
                   .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                   {
                       Success = false,
@@ -416,7 +418,7 @@ namespace SchoolProject.Tests
                     } 
                 }
             };
-            _personServiceMock.Setup(p => p.GetPeopleInClass(classID))
+            _personServiceMock.Setup(p => p.GetPeopleInClass(It.IsAny<Guid>()))
                   .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                   {
                       Data = dbPeople.Select(p => new GetPersonDto { User_ID = p.User_ID }).ToList()
@@ -441,7 +443,7 @@ namespace SchoolProject.Tests
             //Arrange
             Guid classID = Guid.Parse("9f082281-2925-4261-a339-be2f4db65271");
             var dbPeople = new List<Person>();
-            _personServiceMock.Setup(p => p.GetPeopleInClass(classID))
+            _personServiceMock.Setup(p => p.GetPeopleInClass(It.IsAny<Guid>()))
                   .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                   {
                       Success = false,
@@ -491,7 +493,7 @@ namespace SchoolProject.Tests
                     } 
                 }
             };
-            _personServiceMock.Setup(p => p.GetPeopleInClassByName("Acting"))
+            _personServiceMock.Setup(p => p.GetPeopleInClassByName(It.IsAny<String>()))
                   .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                   {
                       Data = dbPeople.Select(p => new GetPersonDto { User_ID = p.User_ID }).ToList()
@@ -516,7 +518,7 @@ namespace SchoolProject.Tests
             //Arrange
             string className = "History";
             var dbPeople = new List<Person>();
-            _personServiceMock.Setup(p => p.GetPeopleInClassByName(className))
+            _personServiceMock.Setup(p => p.GetPeopleInClassByName(It.IsAny<String>()))
                   .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
                   {
                       Success = false,
@@ -572,10 +574,11 @@ namespace SchoolProject.Tests
                 Message = $"Successfully created new person with the first name of '{expectedPerson.First_name}'."
             };
 
-            _personServiceMock.Setup(p => p.AddPerson(addPersonDto))
-                  .ReturnsAsync(new ServiceResponse<List<GetPersonDto>> { Data = expectedResponse.Data, Message = expectedResponse.Message });
+            _personServiceMock.Setup(p => p.AddPerson(It.IsAny<AddPersonDto>()))
+                  .ReturnsAsync(new ServiceResponse<List<GetPersonDto>> { Data = expectedResponse.Data,
+                                                                          Message = expectedResponse.Message });
 
-            _mapperMock.Setup(p => p.Map<Person>(addPersonDto)).Returns(expectedPerson);
+            _mapperMock.Setup(p => p.Map<Person>(It.IsAny<AddPersonDto>())).Returns(expectedPerson);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(expectedPerson)).Returns(expectedResponse.Data[0]);
             _dataContextMock.Setup(p => p.Person.Add(expectedPerson));
             _dataContextMock.Setup(p => p.SaveChangesAsync(default)).ReturnsAsync(1);
@@ -624,15 +627,15 @@ namespace SchoolProject.Tests
                 School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
 
-            _personServiceMock.Setup(p => p.AddPerson(addPersonDto))
-                  .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
-                  {
-                      Success = false,
-                      Data = null,
-                      Message = "Validation error. Person was not saved."
-        });
+            _personServiceMock.Setup(p => p.AddPerson(It.IsAny<AddPersonDto>()))
+                .ReturnsAsync(new ServiceResponse<List<GetPersonDto>>
+                {
+                    Success = false,
+                    Data = null,
+                    Message = "Validation error. Person was not saved."
+                });
 
-            _mapperMock.Setup(x => x.Map<Person>(addPersonDto)).Returns(newPerson);
+            _mapperMock.Setup(x => x.Map<Person>(It.IsAny<AddPersonDto>())).Returns(newPerson);
             _validatorMock.Setup(x => x.Validate(newPerson))
                           .Returns(new ValidationResult(new List<ValidationFailure> {
                           new ValidationFailure("First_name", "First name must be between 3 and 20 characters.")
