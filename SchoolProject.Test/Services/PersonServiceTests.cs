@@ -7,6 +7,7 @@ using SchoolProject.Models.Entities.Enums;
 using SchoolProject.Services.Implementations;
 using SchoolProject.Models.Entities;
 using FluentValidation.Results;
+using SchoolProject.Services.Validation;
 
 namespace SchoolProject.Tests.Services
 {
@@ -19,7 +20,8 @@ namespace SchoolProject.Tests.Services
 
         public PersonServiceTests()
         {
-            _personService = new PersonService(_dataContextMock.Object, _mapperMock.Object, _validatorMock.Object);
+            var validator = new PersonValidator(_dataContextMock.Object);
+            _personService = new PersonService(_dataContextMock.Object, _mapperMock.Object, validator);
         }
 
         private void DataMockSetup(List<Person> people)
@@ -450,7 +452,7 @@ namespace SchoolProject.Tests.Services
         }
 
         [Fact]
-        public async Task AddPerson_ReturnsError_WhenPersonIsInvalid()
+        public async Task AddPerson_ReturnsValidationError_WhenPersonIsInvalid()
         {
             // Arrange
             var addPersonDto = new AddPersonDto
@@ -468,10 +470,13 @@ namespace SchoolProject.Tests.Services
                 User_type = UserType.Teacher,
                 School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
-            _mapperMock.Setup(x => x.Map<Person>(addPersonDto)).Returns(newPerson);
-            _validatorMock.Setup(x => x.Validate(newPerson))
-                          .Returns(new ValidationResult(new List<ValidationFailure> {
-                          new ValidationFailure("First_name", "First name must be between 3 and 20 characters.")
+
+            _mapperMock.Setup(p => p.Map<Person>(addPersonDto)).Returns(newPerson);
+
+            _validatorMock.Setup(p => p.Validate(newPerson))
+                          .Returns(new ValidationResult(new List<ValidationFailure>
+                          {
+                            new ValidationFailure("First_name", "First name must be between 3 and 20 characters.")
                           }));
 
             // Act
