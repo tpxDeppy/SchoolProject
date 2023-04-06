@@ -145,7 +145,7 @@ namespace SchoolProject.Tests.Services
         [Fact]
         public async Task AddClass_ReturnsValidServiceResponseWithAddedClass_WhenValidInput()
         {
-            // Arrange
+            //Arrange
             var addClassDto = new AddClassDto
             {
                 Class_name = "New Class",
@@ -158,45 +158,177 @@ namespace SchoolProject.Tests.Services
                 Class_name = "New Class",
                 Class_description = "New Class description"
             };
+            string expectedMessage = $"Successfully created a class with the name of '{expectedClass.Class_name}'.";
 
-            var expectedResponse = new ServiceResponse<List<GetClassDto>>
-            {
-                Success = true,
-                Message = $"Successfully created a class with the name of '{expectedClass.Class_name}'.",
-                Data = new List<GetClassDto>
-                {
-                    new GetClassDto
-                    {
-                        Class_ID = Guid.NewGuid(),
-                        Class_name = "New Class",
-                        Class_description = "New Class description"
-                    }
-                }
-            };
-
-            _mapperMock.Setup(c => c.Map<Class>(addClassDto)).Returns(expectedClass);
-            _mapperMock.Setup(c => c.Map<GetClassDto>(expectedClass)).Returns(expectedResponse.Data[0]);
-            _dataContextMock.Setup(c => c.Class.Add(expectedClass));
-            _dataContextMock.Setup(c => c.SaveChangesAsync(default)).ReturnsAsync(1);
+            _mapperMock.Setup(c => c.Map<Class>(It.IsAny<AddClassDto>())).Returns(expectedClass);
+            
+            _mapperMock.Setup(c => c.Map<GetClassDto>(expectedClass))
+                       .Returns(new GetClassDto
+                       {
+                           Class_ID = expectedClass.Class_ID,
+                           Class_name = expectedClass.Class_name,
+                           Class_description = expectedClass.Class_description
+                       });
 
             _dataContextMock.Setup(context => context.Class)
                             .ReturnsDbSet(new List<Class> { expectedClass }.AsQueryable());
 
-            // Act
+            //Act
             var result = await _classService.AddClass(addClassDto);
 
-            // Assert
+            //Assert
             Assert.NotNull(result);
             Assert.IsType<ServiceResponse<List<GetClassDto>>>(result);
             Assert.True(result.Success);
-            Assert.Equal(expectedResponse.Message, result.Message);
+            Assert.Equal(expectedMessage, result.Message);
             Assert.NotNull(result.Data);
-            Assert.Collection(result.Data, item =>
+            Assert.Equal(expectedClass.Class_ID, result.Data[0].Class_ID);
+            Assert.Equal(expectedClass.Class_name, result.Data[0].Class_name);
+            Assert.Equal(expectedClass.Class_description, result.Data[0].Class_description);
+        }
+
+        [Fact]
+        public async Task UpdateClass_ReturnsValidServiceResponseWithUpdatedClass_WhenValidInput()
+        {
+            //Arrange
+            var updatedClassDto = new UpdateClassDto
             {
-                Assert.Equal(expectedResponse.Data[0].Class_ID, item.Class_ID);
-                Assert.Equal(expectedResponse.Data[0].Class_name, item.Class_name);
-                Assert.Equal(expectedResponse.Data[0].Class_description, item.Class_description);
-            });
+                Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                Class_name = "Acting",
+                Class_description = "How to act"
+            };
+
+            var expectedClass = new Class
+            {
+                Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                Class_name = "Acting",
+                Class_description = "How to act - part 1"
+            };
+
+            _mapperMock.Setup(c => c.Map<Class>(updatedClassDto)).Returns(expectedClass);
+
+            _mapperMock.Setup(c => c.Map<GetClassDto>(It.IsAny<Class>()))
+                       .Returns(new GetClassDto
+                       {
+                           Class_ID = expectedClass.Class_ID,
+                           Class_name = expectedClass.Class_name,
+                           Class_description = expectedClass.Class_description
+                       });
+
+            _dataContextMock.Setup(context => context.Class)
+                            .ReturnsDbSet(new List<Class> { expectedClass }.AsQueryable());
+
+            //Act
+            var result = await _classService.UpdateClass(updatedClassDto);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<ServiceResponse<GetClassDto>>(result);
+            Assert.True(result.Success);
+            Assert.Equal("Successfully updated.", result.Message);
+            Assert.NotNull(result.Data);
+            Assert.Equal(expectedClass.Class_ID, result.Data.Class_ID);
+            Assert.Equal(expectedClass.Class_name, result.Data.Class_name);
+            Assert.Equal(expectedClass.Class_description, result.Data.Class_description);
+        }
+
+        [Fact]
+        public async Task UpdateClass_ReturnsNotFoundMessage_WhenInputIsInvalid()
+        {
+            //Arrange
+            var updatedClassDto = new UpdateClassDto
+            {
+                Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                Class_name = "Acting",
+                Class_description = "How to act"
+            };
+
+            var expectedClass = new Class
+            {
+                Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e8"),
+                Class_name = "Acting",
+                Class_description = "How to act - part 1"
+            };
+            string expectedMessage = $"Class with ID of '{updatedClassDto.Class_ID}' could not be found.";
+
+            _mapperMock.Setup(c => c.Map<Class>(updatedClassDto)).Returns(expectedClass);
+
+            _dataContextMock.Setup(context => context.Class)
+                            .ReturnsDbSet(new List<Class> { expectedClass }.AsQueryable());
+
+            //Act
+            var result = await _classService.UpdateClass(updatedClassDto);
+
+            //Assert
+            Assert.Null(result.Data);
+            Assert.False(result.Success);
+            Assert.Equal(expectedMessage, result.Message);            
+        }
+
+        [Fact]
+        public async Task DeleteClass_ReturnsValidServiceResponse_WhenValidInput()
+        {
+            //Arrange
+            Guid classID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba");
+            var dbClasses = new List<Class>()
+            {
+                new Class
+                {
+                    Class_ID = classID,
+                    Class_name = "Scripting",
+                    Class_description = "How to write movie scripts"
+                }
+            };
+
+            DataMockSetup(dbClasses);
+            _dataContextMock.Setup(c => c.Class.FindAsync(classID))
+                            .ReturnsAsync(dbClasses[0]);
+
+            _mapperMock.Setup(c => c.Map<GetClassDto>(dbClasses[0]))
+                       .Returns(new GetClassDto
+                       {
+                           Class_ID = dbClasses[0].Class_ID,
+                           Class_name = dbClasses[0].Class_name,
+                           Class_description = dbClasses[0].Class_description
+                       });
+
+            //Act
+            var result = await _classService.DeleteClass(classID);
+
+            //Assert
+            Assert.IsType<ServiceResponse<List<GetClassDto>>>(result);
+            Assert.NotNull(result.Data);
+            Assert.NotNull(result.Data[0]);
+            Assert.True(result.Success);
+            Assert.Empty(result.Message);
+        }
+
+        [Fact]
+        public async Task DeleteClass_ReturnsNotFoundMessage_WhenInputIsInvalid()
+        {
+            //Arrange
+            Guid classID = Guid.NewGuid();
+            var dbClasses = new List<Class>()
+            {
+                new Class
+                {
+                    Class_ID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
+                    Class_name = "Scripting",
+                    Class_description = "How to write movie scripts"
+                }
+            };
+
+            DataMockSetup(dbClasses);
+            _dataContextMock.Setup(c => c.Class.FindAsync(classID))
+                            .ReturnsAsync(dbClasses[0]);
+
+            //Act
+            var result = await _classService.DeleteClass(classID);
+
+            //Assert
+            Assert.Null(result.Data);
+            Assert.False(result.Success);
+            Assert.Equal($"Class with ID of '{classID}' could not be found.", result.Message);
         }
     }
 }

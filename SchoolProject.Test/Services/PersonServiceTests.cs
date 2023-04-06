@@ -8,6 +8,7 @@ using SchoolProject.Services.Implementations;
 using SchoolProject.Models.Entities;
 using FluentValidation.Results;
 using SchoolProject.Services.Validation;
+using Microsoft.EntityFrameworkCore;
 
 namespace SchoolProject.Tests.Services
 {
@@ -388,7 +389,7 @@ namespace SchoolProject.Tests.Services
         [Fact]
         public async Task AddPerson_ReturnsValidServiceResponseWithAddedPerson_WhenValidInput()
         {
-            // Arrange
+            //Arrange
             var addPersonDto = new AddPersonDto
             {
                 First_name = "John",
@@ -405,56 +406,44 @@ namespace SchoolProject.Tests.Services
                 User_type = UserType.Teacher,
                 School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
+            string expectedMessage = $"Successfully created new person with the first name of '{expectedPerson.First_name}'.";
 
-            var expectedResponse = new ServiceResponse<List<GetPersonDto>>
-            {
-                Success = true,
-                Message = $"Successfully created new person with the first name of '{expectedPerson.First_name}'.",
-                Data = new List<GetPersonDto>
-                {
-                    new GetPersonDto
-                    {
-                        User_ID = Guid.NewGuid(),
-                        First_name = "John",
-                        Last_name = "Doe",
-                        User_type = UserType.Teacher,
-                        School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5") }
-                }
-            };
+            _mapperMock.Setup(p => p.Map<Person>(It.IsAny<AddPersonDto>())).Returns(expectedPerson);
 
-            _mapperMock.Setup(p => p.Map<Person>(addPersonDto)).Returns(expectedPerson);
-            _mapperMock.Setup(p => p.Map<GetPersonDto>(expectedPerson)).Returns(expectedResponse.Data[0]);
-            _dataContextMock.Setup(p => p.Person.Add(expectedPerson));
-            _dataContextMock.Setup(p => p.SaveChangesAsync(default)).ReturnsAsync(1);
+            _validatorMock.Setup(v => v.ValidateAsync(expectedPerson, default))
+                          .ReturnsAsync(new ValidationResult());
 
-            _dataContextMock.Setup(context => context.Person)
-                            .ReturnsDbSet(new List<Person> { expectedPerson }.AsQueryable());
+            _mapperMock.Setup(p => p.Map<GetPersonDto>(expectedPerson))
+                       .Returns(new GetPersonDto
+                       {
+                           First_name = expectedPerson.First_name,
+                           Last_name = expectedPerson.Last_name,
+                           User_type = expectedPerson.User_type,
+                           School_ID = expectedPerson.School_ID
+                       });
 
-            _validatorMock.Setup(v => v.ValidateAsync(expectedPerson, default)).ReturnsAsync(new ValidationResult());
+            _dataContextMock.Setup(context => context.Person)                
+                            .ReturnsDbSet(new List<Person> { expectedPerson }.AsQueryable());            
 
-            // Act
+            //Act
             var result = await _personService.AddPerson(addPersonDto);
 
-            // Assert
+            //Assert
             Assert.NotNull(result);
             Assert.IsType<ServiceResponse<List<GetPersonDto>>>(result);
             Assert.True(result.Success);
-            Assert.Equal(expectedResponse.Message, result.Message);
-            Assert.NotNull(result.Data);
-            Assert.Collection(result.Data, item =>
-            {
-                Assert.Equal(expectedResponse.Data[0].User_ID, item.User_ID);
-                Assert.Equal(expectedResponse.Data[0].First_name, item.First_name);
-                Assert.Equal(expectedResponse.Data[0].Last_name, item.Last_name);
-                Assert.Equal(expectedResponse.Data[0].User_type, item.User_type);
-                Assert.Equal(expectedResponse.Data[0].School_ID, item.School_ID);
-            });
+            Assert.Equal(expectedMessage, result.Message);
+            Assert.NotNull(result.Data);            
+            Assert.Equal(result.Data[0].First_name, addPersonDto.First_name);
+            Assert.Equal(result.Data[0].Last_name, addPersonDto.Last_name);
+            Assert.Equal(result.Data[0].User_type, addPersonDto.User_type);
+            Assert.Equal(result.Data[0].School_ID, addPersonDto.School_ID);
         }
 
         [Fact]
         public async Task AddPerson_ReturnsValidationError_WhenPersonIsInvalid()
         {
-            // Arrange
+            //Arrange
             var addPersonDto = new AddPersonDto
             {
                 First_name = "J",
@@ -473,21 +462,197 @@ namespace SchoolProject.Tests.Services
 
             _mapperMock.Setup(p => p.Map<Person>(addPersonDto)).Returns(newPerson);
 
-            _validatorMock.Setup(p => p.Validate(newPerson))
+            _validatorMock.Setup(v => v.Validate(newPerson))
                           .Returns(new ValidationResult(new List<ValidationFailure>
                           {
                             new ValidationFailure("First_name", "First name must be between 3 and 20 characters.")
                           }));
 
-            // Act
+            //Act
             var result = await _personService.AddPerson(addPersonDto);
 
-            // Assert
+            //Assert
             Assert.False(result.Success);
             Assert.Null(result.Data);
             Assert.NotEmpty(result.Message);
         }
 
+        [Fact]
+        public async Task UpdatePerson_ReturnsValidServiceResponseWithUpdatedPerson_WhenValidInput()
+        {
+            //Arrange
+            var updatedPersonDto = new UpdatePersonDto
+            {
+                User_ID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
+                First_name = "Tom",
+                Last_name = "Holland",
+                User_type = UserType.Pupil,
+                Date_of_birth = new DateTime(2010,3,10),
+                Year_group = 6,
+                School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+            };
 
+            var expectedPerson = new Person
+            {
+                User_ID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
+                First_name = "Tom",
+                Last_name = "Holland",
+                User_type = UserType.Pupil,
+                Date_of_birth = new DateTime(2010, 3, 10),
+                Year_group = 7,
+                School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+            };
+
+            _mapperMock.Setup(p => p.Map<Person>(updatedPersonDto)).Returns(expectedPerson);
+
+            _validatorMock.Setup(v => v.ValidateAsync(expectedPerson, default))
+                          .ReturnsAsync(new ValidationResult());
+
+            _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
+                       .Returns(new GetPersonDto
+                        {
+                            User_ID = expectedPerson.User_ID,
+                            First_name = expectedPerson.First_name,
+                            Last_name = expectedPerson.Last_name,
+                            User_type = expectedPerson.User_type,
+                            Date_of_birth = expectedPerson.Date_of_birth,
+                            Year_group = expectedPerson.Year_group,
+                            School_ID = expectedPerson.School_ID
+                        });
+
+            _dataContextMock.Setup(context => context.Person)
+                            .ReturnsDbSet(new List<Person> { expectedPerson }.AsQueryable());            
+
+            //Act
+            var result = await _personService.UpdatePerson(updatedPersonDto);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<ServiceResponse<GetPersonDto>>(result);
+            Assert.True(result.Success);
+            Assert.Equal("Successfully updated.", result.Message);
+            Assert.NotNull(result.Data);
+            Assert.Equal(updatedPersonDto.User_ID, result.Data.User_ID);
+            Assert.Equal(updatedPersonDto.First_name, result.Data.First_name);
+            Assert.Equal(updatedPersonDto.Last_name, result.Data.Last_name);
+            Assert.Equal(updatedPersonDto.User_type, result.Data.User_type);
+            Assert.Equal(updatedPersonDto.School_ID, result.Data.School_ID);
+        }
+
+        [Fact]
+        public async Task UpdatePerson_ReturnsValidationError_WhenInputIsInvalid()
+        {
+            //Arrange
+            var updatedPersonDto = new UpdatePersonDto
+            {
+                User_ID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
+                First_name = "Tom",
+                Last_name = "Holland",
+                User_type = UserType.Pupil,
+                Date_of_birth = new DateTime(2010, 3, 10),
+                Year_group = 6,
+                School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+            };
+
+            var expectedPerson = new Person
+            {
+                User_ID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
+                First_name = "Tom",
+                Last_name = "Holland",
+                User_type = UserType.Pupil,
+                Date_of_birth = new DateTime(2019, 3, 10),
+                Year_group = 6,
+                School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+            };
+
+            _mapperMock.Setup(p => p.Map<Person>(updatedPersonDto)).Returns(expectedPerson);
+
+            _validatorMock.Setup(v => v.Validate(expectedPerson))
+                          .Returns(new ValidationResult(new List<ValidationFailure>
+                          {
+                            new ValidationFailure("Date_of_birth", 
+                            "Age of pupil must be between 5 and 18 years old. Please enter a valid date of birth.")
+                          }));
+
+            //Act
+            var result = await _personService.UpdatePerson(updatedPersonDto);
+
+            //Assert
+            Assert.False(result.Success);
+            Assert.Null(result.Data);
+            Assert.NotEmpty(result.Message);
+        }
+
+        [Fact]
+        public async Task DeletePerson_ReturnsValidServiceResponse_WhenValidInput()
+        {
+            //Arrange
+            Guid personID = Guid.Parse("a9efa426-6ec3-490c-bab4-0b49150f9776");
+            var dbPeople = new List<Person>
+            {
+                new Person
+                {
+                    User_ID = personID,
+                    First_name = "Chris",
+                    Last_name = "Evans",
+                    User_type = UserType.Teacher,
+                    School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+                }
+            };
+
+            DataMockSetup(dbPeople);            
+            _dataContextMock.Setup(p => p.Person.FindAsync(personID))
+                            .ReturnsAsync(dbPeople[0]);
+
+            _mapperMock.Setup(p => p.Map<GetPersonDto>(dbPeople[0]))
+                       .Returns(new GetPersonDto
+                       {
+                           User_ID = dbPeople[0].User_ID,
+                           First_name = dbPeople[0].First_name,
+                           Last_name = dbPeople[0].Last_name,
+                           User_type = dbPeople[0].User_type,
+                           School_ID = dbPeople[0].School_ID
+                       });
+
+            //Act
+            var result = await _personService.DeletePerson(personID);
+
+            //Assert
+            Assert.IsType<ServiceResponse<List<GetPersonDto>>>(result);
+            Assert.NotNull(result.Data);
+            Assert.NotNull(result.Data[0]);
+            Assert.True(result.Success);
+            Assert.Empty(result.Message);
+        }
+
+        [Fact]
+        public async Task DeletePerson_ReturnsNotFoundMessage_WhenInputIsInvalid()
+        {
+            //Arrange
+            Guid personID = Guid.NewGuid();
+            var dbPeople = new List<Person>
+            {
+                new Person
+                {
+                    User_ID = Guid.Parse("a9efa426-6ec3-490c-bab4-0b49150f9776"),
+                    First_name = "Chris",
+                    Last_name = "Evans",
+                    User_type = UserType.Teacher,
+                    School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+                }
+            };
+
+            DataMockSetup(dbPeople);
+            _dataContextMock.Setup(p => p.Person.FindAsync(personID))
+                            .ReturnsAsync(dbPeople[0]);
+
+            //Act
+            var result = await _personService.DeletePerson(personID);
+
+            //Assert
+            Assert.Null(result.Data);
+            Assert.False(result.Success);            
+            Assert.Equal($"Person with ID '{personID}' could not be found.", result.Message);
+        }
     }
 }
