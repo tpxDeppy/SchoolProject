@@ -30,7 +30,7 @@ namespace SchoolProject.Services.Implementations
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
-                    throw new Exception($"Could not find any data...");
+                    throw new Exception("Could not find any data...");
                 }
             }
             catch (Exception ex)

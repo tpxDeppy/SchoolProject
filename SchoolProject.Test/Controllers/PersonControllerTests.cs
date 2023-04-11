@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.API.Controllers;
 using SchoolProject.Data;
@@ -10,11 +8,6 @@ using SchoolProject.Models.Entities;
 using SchoolProject.Models.Entities.Enums;
 using SchoolProject.Services.Implementations;
 using SchoolProject.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SchoolProject.Tests.Controllers
 {
@@ -520,7 +513,7 @@ namespace SchoolProject.Tests.Controllers
         [Fact]
         public async Task AddPerson_ReturnsError_WhenPersonIsInvalid()
         {
-            // Arrange
+            //Arrange
             var addPersonDto = new AddPersonDto
             {
                 First_name = "J",
@@ -546,13 +539,203 @@ namespace SchoolProject.Tests.Controllers
             _personServiceMock.Setup(p => p.AddPerson(It.IsAny<AddPersonDto>()))
                 .ReturnsAsync(expectedResponse);
 
-            // Act
+            //Act
             var result = await PController().AddPerson(addPersonDto);
 
-            // Assert
+            //Assert
             var createdResult = Assert.IsType<CreatedResult>(result.Result);
             var errorMessage = Assert.IsType<ServiceResponse<List<GetPersonDto>>>(createdResult.Value);
             Assert.Equal(expectedResponse.Message, errorMessage.Message);
+        }
+
+        [Fact]
+        public async Task UpdatePerson_ReturnsOkWithUpdatedPerson_WhenValidInput()
+        {
+            //Arrange
+            Guid personID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc");
+            var updatedPersonDto = new UpdatePersonDto
+            {
+                User_ID = personID,
+                First_name = "John",
+                Last_name = "Doe",
+                User_type = UserType.Teacher,
+                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+            };
+            var expectedPerson = new Person
+            {
+                User_ID = personID,
+                First_name = "Joanne",
+                Last_name = "Doe",
+                User_type = UserType.Teacher,
+                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+            };
+            var expectedResponse = new ServiceResponse<GetPersonDto>
+            {
+                Success = true,
+                Data = new GetPersonDto
+                {
+                    User_ID = personID,
+                    First_name = "Joanne",
+                    Last_name = "Doe",
+                    User_type = UserType.Teacher,
+                    School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+                },                
+                Message = $"Successfully updated."
+            };
+
+            _personServiceMock.Setup(p => p.UpdatePerson(updatedPersonDto))
+                  .ReturnsAsync(new ServiceResponse<GetPersonDto>
+                  {
+                      Data = expectedResponse.Data,
+                      Message = expectedResponse.Message
+                  });
+
+            //Act
+            var result = await PController().UpdatePerson(personID, updatedPersonDto);
+
+            //Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var resultData = Assert.IsType<ServiceResponse<GetPersonDto>>(okResult.Value);
+            Assert.True(resultData.Success);
+            Assert.Equal(expectedResponse.Message, resultData.Message);
+            Assert.Equal(expectedPerson.First_name, resultData.Data!.First_name);
+            Assert.Equal(expectedPerson.Last_name, resultData.Data.Last_name);
+            Assert.Equal(expectedPerson.User_type, resultData.Data.User_type);
+            Assert.Equal(expectedPerson.School_ID, resultData.Data.School_ID);
+        }
+
+        [Fact]
+        public async Task UpdatePerson_ReturnsBadRequest_WhenPersonIDsDontMatch()
+        {
+            //Arrange
+            Guid personID = Guid.NewGuid();
+            var updatedPersonDto = new UpdatePersonDto
+            {
+                User_ID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc"),
+                First_name = "John",
+                Last_name = "Doe",
+                User_type = UserType.Teacher,
+                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+            };
+            var expectedPerson = new Person
+            {
+                User_ID = personID,
+                First_name = "Joanne",
+                Last_name = "Doe",
+                User_type = UserType.Teacher,
+                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+            };
+            var expectedResponse = new ServiceResponse<GetPersonDto>
+            {
+                Message = "Bad request. Please check that the IDs match."
+            };
+
+            _personServiceMock.Setup(p => p.UpdatePerson(updatedPersonDto))
+                .ReturnsAsync(expectedResponse);
+
+            //Act
+            var result = await PController().UpdatePerson(personID, updatedPersonDto);
+                      
+            //Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.Equal(expectedResponse.Message, badRequestResult.Value);
+        }
+
+        [Fact]
+        public async Task UpdatePerson_ReturnsNotFound_WhenPersonIDIsInvalid()
+        {
+            //Arrange
+            Guid personID = Guid.NewGuid();
+            var updatedPersonDto = new UpdatePersonDto
+            {
+                User_ID = personID,
+                First_name = "John",
+                Last_name = "Doe",
+                User_type = UserType.Teacher,
+                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+            };
+            var expectedPerson = new Person
+            {
+                User_ID = personID,
+                First_name = "Joanne",
+                Last_name = "Doe",
+                User_type = UserType.Teacher,
+                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+            };
+            var expectedResponse = new ServiceResponse<GetPersonDto>
+            {
+                Message = "Validation error. Person was not updated."
+            };
+
+            _personServiceMock.Setup(p => p.UpdatePerson(updatedPersonDto))
+                .ReturnsAsync(expectedResponse);
+
+            //Act
+            var result = await PController().UpdatePerson(personID, updatedPersonDto);
+
+            //Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal(expectedResponse.Message, notFoundResult.Value);
+        }
+
+        [Fact]
+        public async Task DeletePerson_ReturnsOk_WhenPersonIDIsValid()
+        {
+            //Arrange
+            Guid personID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc");
+            var personToBeDeleted = new Person
+            {
+                User_ID = personID,
+                First_name = "John",
+                Last_name = "Doe",
+                User_type = UserType.Teacher,
+                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+            };
+            var expectedResponse = new ServiceResponse<List<GetPersonDto>>
+            {
+                Success = true,
+                Data = new List<GetPersonDto>(),
+                Message = $"Person with ID of '{personID}' was successfully deleted."
+            };
+
+            _personServiceMock.Setup(p => p.DeletePerson(personID))
+                .ReturnsAsync(expectedResponse);
+
+            //Act
+            var result = await PController().DeletePerson(personID);
+
+            //Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            Assert.Equal(expectedResponse.Message, okResult.Value);
+        }
+
+        [Fact]
+        public async Task DeletePerson_ReturnsNotFound_WhenPersonIDIsInvalid()
+        {
+            //Arrange
+            Guid personID = Guid.NewGuid();
+            var personToBeDeleted = new Person
+            {
+                User_ID = personID,
+                First_name = "John",
+                Last_name = "Doe",
+                User_type = UserType.Teacher,
+                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+            };
+            var expectedResponse = new ServiceResponse<List<GetPersonDto>>
+            {
+                Message = $"Person with ID '{personID}' could not be found."
+            };
+
+            _personServiceMock.Setup(p => p.DeletePerson(personID))
+                .ReturnsAsync(expectedResponse);
+
+            //Act
+            var result = await PController().DeletePerson(personID);
+
+            //Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.Equal(expectedResponse.Message, notFoundResult.Value);
         }
     }
 }
