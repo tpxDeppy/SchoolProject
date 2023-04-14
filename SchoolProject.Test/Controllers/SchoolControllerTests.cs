@@ -6,11 +6,6 @@ using SchoolProject.Models.DataTransferObjs.School;
 using SchoolProject.Models.Entities;
 using SchoolProject.Services.Implementations;
 using SchoolProject.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SchoolProject.Tests.Controllers
 {
@@ -19,6 +14,11 @@ namespace SchoolProject.Tests.Controllers
         private readonly Mock<DataContext> _dataContextMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly Mock<ISchoolService> _schoolServiceMock;
+        private readonly School exampleSchool = new School
+        {
+            School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
+            School_name = "Sydney School"
+        };
 
         public SchoolControllerTests() 
         {
@@ -226,11 +226,8 @@ namespace SchoolProject.Tests.Controllers
                 School_ID = schoolID,
                 School_name = "Sydney School"
             };
-            var expectedSchool = new School
-            {
-                School_ID = schoolID,
-                School_name = "Syd School"
-            };
+            var expectedSchool = exampleSchool;
+            exampleSchool.School_name = "Syd School";
             var expectedResponse = new ServiceResponse<GetSchoolDto>
             {
                 Data = new GetSchoolDto
@@ -262,11 +259,6 @@ namespace SchoolProject.Tests.Controllers
                 School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
                 School_name = "Sydney School"
             };
-            var expectedSchool = new School
-            {
-                School_ID = schoolID,
-                School_name = "Syd School"
-            };
             var expectedResponse = new ServiceResponse<GetSchoolDto>
             {
                 Message = "Bad request. Please check that the IDs match."
@@ -294,11 +286,6 @@ namespace SchoolProject.Tests.Controllers
                 School_ID = schoolID,
                 School_name = "Sydney School"
             };
-            var expectedSchool = new School
-            {
-                School_ID = schoolID,
-                School_name = "Syd School"
-            };
             var expectedResponse = new ServiceResponse<GetSchoolDto>
             {
                 Message = $"School with ID of '{schoolID}' could not be found."
@@ -320,10 +307,8 @@ namespace SchoolProject.Tests.Controllers
         {
             //Arrange
             Guid schoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e");
-            var schoolToBeDeleted = new School
-            {
-                School_ID = schoolID
-            };
+            var schoolToBeDeleted = exampleSchool;
+            schoolToBeDeleted.School_ID = schoolID;            
             var expectedResponse = new ServiceResponse<List<GetSchoolDto>>
             {
                 Success = true,
@@ -347,10 +332,6 @@ namespace SchoolProject.Tests.Controllers
         {
             //Arrange
             Guid schoolID = Guid.NewGuid();
-            var schoolToBeDeleted = new School
-            {
-                School_ID = schoolID
-            };
             var expectedResponse = new ServiceResponse<List<GetSchoolDto>>
             {
                 Message = $"School with ID of '{schoolID}' could not be found."

@@ -14,6 +14,12 @@ namespace SchoolProject.Tests.Controllers
         private readonly Mock<DataContext> _dataContextMock = new();
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly Mock<IClassService> _classServiceMock;
+        private readonly Class exampleClass = new Class
+        {
+            Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+            Class_name = "Acting",
+            Class_description = "How to act"
+        };
 
         public ClassControllerTests()
         {
@@ -84,7 +90,7 @@ namespace SchoolProject.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetClasseById_ReturnsOk_WhenClassExists()
+        public async Task GetClassById_ReturnsOk_WhenClassExists()
         {
             //Arrange
             Guid classID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba");
@@ -111,7 +117,7 @@ namespace SchoolProject.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetClasseById_ReturnsNotFound_WhenClassDoesNotExist()
+        public async Task GetClassById_ReturnsNotFound_WhenClassDoesNotExist()
         {
             //Arrange
             Guid classID = Guid.NewGuid();
@@ -226,12 +232,8 @@ namespace SchoolProject.Tests.Controllers
                 Class_name = "A Class",
                 Class_description = "A Class Description",
             };
-            var expectedClass = new Class
-            {
-                Class_ID = classID,
-                Class_name = "Updated Class",
-                Class_description = "An Updated Class Description"
-            };
+            var expectedClass = exampleClass;
+            exampleClass.Class_ID = classID;            
             var expectedResponse = new ServiceResponse<GetClassDto>
             {
                 Data = new GetClassDto
@@ -265,12 +267,6 @@ namespace SchoolProject.Tests.Controllers
                 Class_name = "A Class",
                 Class_description = "A Class Description",
             };
-            var expectedClass = new Class
-            {
-                Class_ID = classID,
-                Class_name = "Updated Class",
-                Class_description = "An Updated Class Description"
-            };
             var expectedResponse = new ServiceResponse<GetClassDto>
             {
                 Message = "Bad request. Please check that the IDs match."
@@ -298,12 +294,6 @@ namespace SchoolProject.Tests.Controllers
                 Class_name = "A Class",
                 Class_description = "A Class Description",
             };
-            var expectedClass = new Class
-            {
-                Class_ID = classID,
-                Class_name = "Updated Class",
-                Class_description = "An Updated Class Description"
-            };
             var expectedResponse = new ServiceResponse<GetClassDto>
             {
                 Message = $"Class with ID of '{classID}' could not be found."
@@ -325,12 +315,8 @@ namespace SchoolProject.Tests.Controllers
         {
             //Arrange
             Guid classID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0");
-            var classToBeDeleted = new Class
-            {
-                Class_ID = classID,
-                Class_name = "Acting",
-                Class_description = "How to act"
-            };
+            var classToBeDeleted = exampleClass;
+            exampleClass.Class_ID = classID;            
             var expectedResponse = new ServiceResponse<List<GetClassDto>>
             {
                 Success = true,
@@ -354,10 +340,6 @@ namespace SchoolProject.Tests.Controllers
         {
             //Arrange
             Guid classID = Guid.NewGuid();
-            var classToBeDeleted = new Class
-            {
-                Class_ID = classID,
-            };
             var expectedResponse = new ServiceResponse<List<GetClassDto>>()
             {
                 Message = $"Class with ID of '{classID}' could not be found."

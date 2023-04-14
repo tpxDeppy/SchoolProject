@@ -17,6 +17,14 @@ namespace SchoolProject.Tests.Controllers
         private readonly Mock<IMapper> _mapperMock = new();
         private readonly Mock<IValidator<Person>> _validatorMock = new();
         private readonly Mock<IPersonService> _personServiceMock;
+        private readonly Person examplePerson = new Person
+        {
+            User_ID = Guid.NewGuid(),
+            First_name = "John",
+            Last_name = "Doe",
+            User_type = UserType.Teacher,
+            School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+        };
 
         public PersonControllerTests()
         {
@@ -302,7 +310,7 @@ namespace SchoolProject.Tests.Controllers
         public async Task GetPeopleFromSchool_ReturnsNotFound_WhenPeopleDoNotExist()
         {
             //Arrange
-            Guid schoolID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5");
+            Guid schoolID = Guid.NewGuid();
             var expectedResponse = new ServiceResponse<List<GetPersonDto>>
             {
                 Data = null,
@@ -330,22 +338,22 @@ namespace SchoolProject.Tests.Controllers
                 {
                     PersonClasses = new List<PersonClass>
                     {
-                                new PersonClass
-                                {
-                                    Class_ID = classID,
-                                    User_ID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc")
-                                }
+                        new PersonClass
+                        {
+                            Class_ID = classID,
+                            User_ID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc")
+                        }
                     }
                 },
                 new Person
                 {
                     PersonClasses = new List<PersonClass>
                     {
-                                new PersonClass
-                                {
-                                    Class_ID = classID,
-                                    User_ID = Guid.Parse("4ca1789c-b20c-4320-8472-c52ebeac47e0")
-                                }
+                        new PersonClass
+                        {
+                            Class_ID = classID,
+                            User_ID = Guid.Parse("4ca1789c-b20c-4320-8472-c52ebeac47e0")
+                        }
                     }
                 }
             };
@@ -466,14 +474,7 @@ namespace SchoolProject.Tests.Controllers
                 User_type = UserType.Teacher,
                 School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
-            var expectedPerson = new Person
-            {
-                User_ID = Guid.NewGuid(),
-                First_name = "John",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
-            };
+            var expectedPerson = examplePerson;
             var expectedResponse = new ServiceResponse<List<GetPersonDto>>
             {
                 Success = true,
@@ -481,10 +482,12 @@ namespace SchoolProject.Tests.Controllers
                 {
                     new GetPersonDto
                     {
-                        First_name = "John",
-                        Last_name = "Doe",
-                        User_type = UserType.Teacher,
-                        School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5") }
+                        User_ID = Guid.NewGuid(),
+                        First_name = examplePerson.First_name,
+                        Last_name = examplePerson.Last_name,
+                        User_type = examplePerson.User_type,
+                        School_ID = examplePerson.School_ID
+                    }
                 },
                 Message = $"Successfully created new person with the first name of '{expectedPerson.First_name}'."
             };
@@ -521,18 +524,8 @@ namespace SchoolProject.Tests.Controllers
                 User_type = UserType.Teacher,
                 School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
-            var newPerson = new Person
-            {
-                User_ID = Guid.NewGuid(),
-                First_name = "J",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
-            };
             var expectedResponse = new ServiceResponse<List<GetPersonDto>>
             {
-                Success = false,
-                Data = null,
                 Message = "Validation error. Person was not saved."
             };
 
@@ -561,14 +554,10 @@ namespace SchoolProject.Tests.Controllers
                 User_type = UserType.Teacher,
                 School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
-            var expectedPerson = new Person
-            {
-                User_ID = personID,
-                First_name = "Joanne",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
-            };
+            var expectedPerson = examplePerson;
+            expectedPerson.User_ID = personID;
+            expectedPerson.First_name = "Joanne";
+
             var expectedResponse = new ServiceResponse<GetPersonDto>
             {
                 Success = true,
@@ -580,7 +569,7 @@ namespace SchoolProject.Tests.Controllers
                     User_type = UserType.Teacher,
                     School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
                 },                
-                Message = $"Successfully updated."
+                Message = "Successfully updated."
             };
 
             _personServiceMock.Setup(p => p.UpdatePerson(updatedPersonDto))
@@ -617,14 +606,6 @@ namespace SchoolProject.Tests.Controllers
                 User_type = UserType.Teacher,
                 School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
-            var expectedPerson = new Person
-            {
-                User_ID = personID,
-                First_name = "Joanne",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
-            };
             var expectedResponse = new ServiceResponse<GetPersonDto>
             {
                 Message = "Bad request. Please check that the IDs match."
@@ -654,14 +635,6 @@ namespace SchoolProject.Tests.Controllers
                 User_type = UserType.Teacher,
                 School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
-            var expectedPerson = new Person
-            {
-                User_ID = personID,
-                First_name = "Joanne",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
-            };
             var expectedResponse = new ServiceResponse<GetPersonDto>
             {
                 Message = "Validation error. Person was not updated."
@@ -683,14 +656,8 @@ namespace SchoolProject.Tests.Controllers
         {
             //Arrange
             Guid personID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc");
-            var personToBeDeleted = new Person
-            {
-                User_ID = personID,
-                First_name = "John",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
-            };
+            var personToBeDeleted = examplePerson;
+            personToBeDeleted.User_ID = personID;
             var expectedResponse = new ServiceResponse<List<GetPersonDto>>
             {
                 Success = true,
@@ -714,14 +681,6 @@ namespace SchoolProject.Tests.Controllers
         {
             //Arrange
             Guid personID = Guid.NewGuid();
-            var personToBeDeleted = new Person
-            {
-                User_ID = personID,
-                First_name = "John",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
-            };
             var expectedResponse = new ServiceResponse<List<GetPersonDto>>
             {
                 Message = $"Person with ID '{personID}' could not be found."
