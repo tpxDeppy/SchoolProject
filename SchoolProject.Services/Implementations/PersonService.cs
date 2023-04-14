@@ -52,7 +52,7 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == id);
+                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.UserID == id);
                 serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
 
                 if (dbPerson is null)
@@ -75,7 +75,7 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.Last_name == lastName);
+                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.LastName == lastName);
                 serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
 
                 if (dbPerson is null)
@@ -97,7 +97,7 @@ namespace SchoolProject.Services.Implementations
             var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
             var dbPeople = await _dataContext.Person.ToListAsync();
             serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>)
-                                           .Where(p => p.User_type == userType)
+                                           .Where(p => p.UserType == userType)
                                            .ToList();
 
             return serviceResponse;
@@ -117,7 +117,7 @@ namespace SchoolProject.Services.Implementations
                 }
 
                 serviceResponse.Data = dbPupils.Select(_mapper.Map<GetPersonDto>)
-                                               .Where(p => p.User_type == UserType.Pupil && p.Year_group == yearGroup)
+                                               .Where(p => p.UserType == UserType.Pupil && p.YearGroup == yearGroup)
                                                .ToList();
 
             }
@@ -139,7 +139,7 @@ namespace SchoolProject.Services.Implementations
                 var dbPeople = await _dataContext.Person.ToListAsync();
 
                 serviceResponse.Data = dbPeople.Select(p => _mapper.Map<GetPersonDto>(p))
-                                               .Where(p => p.School_ID == schoolID)
+                                               .Where(p => p.SchoolID == schoolID)
                                                .ToList();
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
@@ -164,7 +164,7 @@ namespace SchoolProject.Services.Implementations
             {
                 var dbPeopleInClass = await _dataContext.Person
                                             .Include(pc => pc.PersonClasses)
-                                            .Where(p => p.PersonClasses.Any(pc => pc.Class_ID == classID))
+                                            .Where(p => p.PersonClasses.Any(pc => pc.ClassID == classID))
                                             .ToListAsync();                                            
 
                 serviceResponse.Data = dbPeopleInClass.Select(_mapper.Map<GetPersonDto>).ToList();
@@ -192,7 +192,7 @@ namespace SchoolProject.Services.Implementations
             {
                 var dbPeopleInClass = await _dataContext.Person
                                            .Include(pc => pc.PersonClasses)
-                                           .Where(p => p.PersonClasses.Any(pc => pc.Class.Class_name == className))
+                                           .Where(p => p.PersonClasses.Any(pc => pc.Class.ClassName == className))
                                            .ToListAsync();
 
                 serviceResponse.Data = dbPeopleInClass.Select(_mapper.Map<GetPersonDto>).ToList();
@@ -229,7 +229,7 @@ namespace SchoolProject.Services.Implementations
             _dataContext.Person.Add(person);
             await _dataContext.SaveChangesAsync();
 
-            serviceResponse.Message = $"Successfully created new person with the first name of '{newPerson.First_name}'.";
+            serviceResponse.Message = $"Successfully created new person with the first name of '{newPerson.FirstName}'.";
             serviceResponse.Data =
                 await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
             return serviceResponse;
@@ -250,11 +250,11 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == updatedPerson.User_ID);
+                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.UserID == updatedPerson.UserID);
 
                 if (dbPerson is null)
                 {
-                    throw new Exception($"Person with ID '{updatedPerson.User_ID}' could not be found.");
+                    throw new Exception($"Person with ID '{updatedPerson.UserID}' could not be found.");
                 }
 
                 dbPerson = _mapper.Map(updatedPerson, dbPerson);
@@ -279,7 +279,7 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.User_ID == id);
+                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.UserID == id);
 
                 if (dbPerson is null)
                 {

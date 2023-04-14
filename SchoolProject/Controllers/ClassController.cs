@@ -65,7 +65,7 @@ namespace SchoolProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<GetClassDto>> UpdateClass(Guid id, UpdateClassDto updatedClass)
         {
-            if (id != updatedClass.Class_ID)
+            if (id != updatedClass.ClassID)
             {
                 return BadRequest("Bad request. Please check that the IDs match.");
             }

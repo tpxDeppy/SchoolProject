@@ -16,9 +16,9 @@ namespace SchoolProject.Tests.Controllers
         private readonly Mock<IClassService> _classServiceMock;
         private readonly Class exampleClass = new Class
         {
-            Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-            Class_name = "Acting",
-            Class_description = "How to act"
+            ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+            ClassName = "Acting",
+            ClassDescription = "How to act"
         };
 
         public ClassControllerTests()
@@ -42,15 +42,15 @@ namespace SchoolProject.Tests.Controllers
                 {
                     new GetClassDto
                     {
-                        Class_ID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
-                        Class_name = "Scripting",
-                        Class_description = "How to write movie scripts"
+                        ClassID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
+                        ClassName = "Scripting",
+                        ClassDescription = "How to write movie scripts"
                     },
                     new GetClassDto
                     {
-                        Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                        Class_name = "Acting",
-                        Class_description = "How to act"
+                        ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                        ClassName = "Acting",
+                        ClassDescription = "How to act"
                     }
                 }
             };
@@ -98,9 +98,9 @@ namespace SchoolProject.Tests.Controllers
             {
                 Data = new GetClassDto
                 {
-                    Class_ID = classID,
-                    Class_name = "Scripting",
-                    Class_description = "How to write movie scripts"                
+                    ClassID = classID,
+                    ClassName = "Scripting",
+                    ClassDescription = "How to write movie scripts"                
                 }
             };
 
@@ -147,9 +147,9 @@ namespace SchoolProject.Tests.Controllers
             {
                 Data = new GetClassDto
                 {
-                    Class_ID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
-                    Class_name = className,
-                    Class_description = "How to write movie scripts"
+                    ClassID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
+                    ClassName = className,
+                    ClassDescription = "How to write movie scripts"
                 }
             };
 
@@ -193,8 +193,8 @@ namespace SchoolProject.Tests.Controllers
             //Arrange
             var addClassDto = new AddClassDto
             {
-                Class_name = "New Class",
-                Class_description = "New Class Description",
+                ClassName = "New Class",
+                ClassDescription = "New Class Description",
             };            
             var expectedResponse = new ServiceResponse<List<GetClassDto>>
             {
@@ -202,9 +202,9 @@ namespace SchoolProject.Tests.Controllers
                 {
                     new GetClassDto
                     {
-                        Class_ID = Guid.NewGuid(),
-                        Class_name = addClassDto.Class_name,
-                        Class_description = addClassDto.Class_description
+                        ClassID = Guid.NewGuid(),
+                        ClassName = addClassDto.ClassName,
+                        ClassDescription = addClassDto.ClassDescription
                     }                    
                 }
             };
@@ -228,19 +228,19 @@ namespace SchoolProject.Tests.Controllers
             Guid classID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba");
             var updatedClassDto = new UpdateClassDto
             {
-                Class_ID = classID,
-                Class_name = "A Class",
-                Class_description = "A Class Description",
+                ClassID = classID,
+                ClassName = "A Class",
+                ClassDescription = "A Class Description",
             };
             var expectedClass = exampleClass;
-            exampleClass.Class_ID = classID;            
+            exampleClass.ClassID = classID;            
             var expectedResponse = new ServiceResponse<GetClassDto>
             {
                 Data = new GetClassDto
                 {
-                    Class_ID = expectedClass.Class_ID,
-                    Class_name = expectedClass.Class_name,
-                    Class_description = expectedClass.Class_description
+                    ClassID = expectedClass.ClassID,
+                    ClassName = expectedClass.ClassName,
+                    ClassDescription = expectedClass.ClassDescription
                 }
             };
 
@@ -263,9 +263,9 @@ namespace SchoolProject.Tests.Controllers
             Guid classID = Guid.NewGuid();
             var updatedClassDto = new UpdateClassDto
             {
-                Class_ID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
-                Class_name = "A Class",
-                Class_description = "A Class Description",
+                ClassID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
+                ClassName = "A Class",
+                ClassDescription = "A Class Description",
             };
             var expectedResponse = new ServiceResponse<GetClassDto>
             {
@@ -290,9 +290,9 @@ namespace SchoolProject.Tests.Controllers
             Guid classID = Guid.NewGuid();
             var updatedClassDto = new UpdateClassDto
             {
-                Class_ID = classID,
-                Class_name = "A Class",
-                Class_description = "A Class Description",
+                ClassID = classID,
+                ClassName = "A Class",
+                ClassDescription = "A Class Description",
             };
             var expectedResponse = new ServiceResponse<GetClassDto>
             {
@@ -316,7 +316,7 @@ namespace SchoolProject.Tests.Controllers
             //Arrange
             Guid classID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0");
             var classToBeDeleted = exampleClass;
-            exampleClass.Class_ID = classID;            
+            exampleClass.ClassID = classID;            
             var expectedResponse = new ServiceResponse<List<GetClassDto>>
             {
                 Success = true,

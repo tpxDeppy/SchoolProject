@@ -38,13 +38,13 @@ namespace SchoolProject.Tests.Services
             {
                 new Person
                 {
-                    User_ID = Guid.Parse("a9efa426-6ec3-490c-bab4-0b49150f9776"),
-                    Last_name = "Evans"
+                    UserID = Guid.Parse("a9efa426-6ec3-490c-bab4-0b49150f9776"),
+                    LastName = "Evans"
                 }
             };
             DataMockSetup(dbPeople);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
-                       .Returns<Person>(p => new GetPersonDto { User_ID = p.User_ID, Last_name = p.Last_name });
+                       .Returns<Person>(p => new GetPersonDto { UserID = p.UserID, LastName = p.LastName });
 
             //Act
             var result = await _personService.GetAllPeople();
@@ -53,8 +53,8 @@ namespace SchoolProject.Tests.Services
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
             Assert.Equal(dbPeople.Count, result.Data.Count);
-            Assert.Equal(dbPeople[0].User_ID, result.Data[0].User_ID);
-            Assert.Equal(dbPeople[0].Last_name, result.Data[0].Last_name);
+            Assert.Equal(dbPeople[0].UserID, result.Data[0].UserID);
+            Assert.Equal(dbPeople[0].LastName, result.Data[0].LastName);
         }
 
         [Fact]
@@ -80,32 +80,32 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var dbPeople = new List<Person>
             {
-                new Person { User_ID = Guid.Parse("730ef62d-fc45-4f6d-8a09-0f99e4316a3a") }
+                new Person { UserID = Guid.Parse("730ef62d-fc45-4f6d-8a09-0f99e4316a3a") }
             };
             DataMockSetup(dbPeople);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
-                       .Returns<Person>(p => new GetPersonDto { User_ID = p.User_ID });
+                       .Returns<Person>(p => new GetPersonDto { UserID = p.UserID });
 
             //Act
-            var result = await _personService.GetPersonById(dbPeople[0].User_ID);
+            var result = await _personService.GetPersonById(dbPeople[0].UserID);
 
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
-            Assert.Equal(dbPeople[0].User_ID, result.Data.User_ID);
+            Assert.Equal(dbPeople[0].UserID, result.Data.UserID);
         }
 
         [Fact]
         public async Task GetSinglePerson_ReturnsNotFound_WhenPersonDoesNotExist()
         {
             //Arrange
-            var dbPerson = new Person { User_ID = Guid.NewGuid() };
+            var dbPerson = new Person { UserID = Guid.NewGuid() };
             _dataContextMock.Setup(p => p.Person);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
-                       .Returns<Person>(p => new GetPersonDto { User_ID = p.User_ID });
+                       .Returns<Person>(p => new GetPersonDto { UserID = p.UserID });
 
             //Act
-            var result = await _personService.GetPersonById(dbPerson.User_ID);
+            var result = await _personService.GetPersonById(dbPerson.UserID);
 
             //Assert
             Assert.False(result.Success);
@@ -117,31 +117,31 @@ namespace SchoolProject.Tests.Services
         public async Task GetPersonByLastName_ReturnsOk_WhenPersonExists()
         {
             //Arrange
-            var dbPeople = new List<Person> { new Person { Last_name = "Jolie" } };
+            var dbPeople = new List<Person> { new Person { LastName = "Jolie" } };
             DataMockSetup(dbPeople);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
-                       .Returns<Person>(p => new GetPersonDto { Last_name = p.Last_name });
+                       .Returns<Person>(p => new GetPersonDto { LastName = p.LastName });
 
             //Act
-            var result = await _personService.GetPersonByLastName(dbPeople[0].Last_name);
+            var result = await _personService.GetPersonByLastName(dbPeople[0].LastName);
 
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
-            Assert.Equal(dbPeople[0].Last_name, result.Data.Last_name);
+            Assert.Equal(dbPeople[0].LastName, result.Data.LastName);
         }
 
         [Fact]
         public async Task GetPersonByLastName_ReturnsNotFound_WhenPersonDoesNotExist()
         {
             //Arrange
-            var dbPerson = new Person { Last_name = "Julian" };
+            var dbPerson = new Person { LastName = "Julian" };
             _dataContextMock.Setup(p => p.Person);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
-                       .Returns<Person>(p => new GetPersonDto { Last_name = p.Last_name });
+                       .Returns<Person>(p => new GetPersonDto { LastName = p.LastName });
 
             //Act
-            var result = await _personService.GetPersonByLastName(dbPerson.Last_name);
+            var result = await _personService.GetPersonByLastName(dbPerson.LastName);
 
             //Assert
             Assert.False(result.Success);
@@ -153,18 +153,18 @@ namespace SchoolProject.Tests.Services
         public async Task GetPeopleByUserType_ReturnsOk_WhenPeopleExist()
         {
             //Arrange
-            var dbPeople = new List<Person> { new Person { User_type = UserType.Teacher } };
+            var dbPeople = new List<Person> { new Person { UserType = UserType.Teacher } };
             DataMockSetup(dbPeople);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
-                       .Returns<Person>(p => new GetPersonDto { User_type = p.User_type });
+                       .Returns<Person>(p => new GetPersonDto { UserType = p.UserType });
 
             //Act
-            var result = await _personService.GetPeopleByUserType(dbPeople[0].User_type);
+            var result = await _personService.GetPeopleByUserType(dbPeople[0].UserType);
 
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
-            Assert.Equal(dbPeople[0].User_type, result.Data[0].User_type);
+            Assert.Equal(dbPeople[0].UserType, result.Data[0].UserType);
         }
 
         [Fact]
@@ -189,20 +189,20 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var dbPeople = new List<Person>
             {
-                new Person { User_type = UserType.Pupil, Year_group = 11 }
+                new Person { UserType = UserType.Pupil, YearGroup = 11 }
             };
             DataMockSetup(dbPeople);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
-                       .Returns<Person>(p => new GetPersonDto { User_type = p.User_type, Year_group = p.Year_group });
+                       .Returns<Person>(p => new GetPersonDto { UserType = p.UserType, YearGroup = p.YearGroup });
 
             //Act
-            var result = await _personService.GetPupilsByYearGroup((int)dbPeople[0].Year_group!);
+            var result = await _personService.GetPupilsByYearGroup((int)dbPeople[0].YearGroup!);
 
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
-            Assert.Equal(dbPeople[0].User_type, result.Data[0].User_type);
-            Assert.Equal(dbPeople[0].Year_group, result.Data[0].Year_group);
+            Assert.Equal(dbPeople[0].UserType, result.Data[0].UserType);
+            Assert.Equal(dbPeople[0].YearGroup, result.Data[0].YearGroup);
         }
 
         [Fact]
@@ -228,16 +228,16 @@ namespace SchoolProject.Tests.Services
             var dbPeople = new List<Person>
             {
                 new Person {
-                    User_type = UserType.Pupil, Year_group = 9,
-                    School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d") },
+                    UserType = UserType.Pupil, YearGroup = 9,
+                    SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d") },
                 new Person {
-                    User_type = UserType.Teacher,
-                    School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d") }
+                    UserType = UserType.Teacher,
+                    SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d") }
             };
             DataMockSetup(dbPeople);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
                        .Returns<Person>(p => new GetPersonDto
-                       { User_type = p.User_type, Year_group = p.Year_group, School_ID = p.School_ID });
+                       { UserType = p.UserType, YearGroup = p.YearGroup, SchoolID = p.SchoolID });
 
             //Act
             var result = await _personService.GetPeopleFromSchool(Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"));
@@ -245,11 +245,11 @@ namespace SchoolProject.Tests.Services
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
-            Assert.Equal(dbPeople[0].User_type, result.Data[0].User_type);
-            Assert.Equal(dbPeople[0].Year_group, result.Data[0].Year_group);
-            Assert.Equal(dbPeople[0].School_ID, result.Data[0].School_ID);
-            Assert.Equal(dbPeople[1].User_type, result.Data[1].User_type);
-            Assert.Equal(dbPeople[1].School_ID, result.Data[1].School_ID);
+            Assert.Equal(dbPeople[0].UserType, result.Data[0].UserType);
+            Assert.Equal(dbPeople[0].YearGroup, result.Data[0].YearGroup);
+            Assert.Equal(dbPeople[0].SchoolID, result.Data[0].SchoolID);
+            Assert.Equal(dbPeople[1].UserType, result.Data[1].UserType);
+            Assert.Equal(dbPeople[1].SchoolID, result.Data[1].SchoolID);
         }
 
         [Fact]
@@ -280,8 +280,8 @@ namespace SchoolProject.Tests.Services
                     {
                                 new PersonClass
                                 {
-                                    Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                                    User_ID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc")
+                                    ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                                    UserID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc")
                                 }
                     }
                 },
@@ -291,15 +291,15 @@ namespace SchoolProject.Tests.Services
                     {
                                 new PersonClass
                                 {
-                                    Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                                    User_ID = Guid.Parse("4ca1789c-b20c-4320-8472-c52ebeac47e0")
+                                    ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                                    UserID = Guid.Parse("4ca1789c-b20c-4320-8472-c52ebeac47e0")
                                 }
                     }
                 }
             };
             DataMockSetup(dbPeople);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
-                       .Returns<Person>(p => new GetPersonDto { User_ID = p.User_ID });
+                       .Returns<Person>(p => new GetPersonDto { UserID = p.UserID });
 
             //Act
             var result = await _personService.GetPeopleInClass(Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"));
@@ -338,9 +338,9 @@ namespace SchoolProject.Tests.Services
                     {
                         new PersonClass
                         {
-                            Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                            User_ID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc"),
-                            Class = new Class { Class_name = "Acting" }
+                            ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                            UserID = Guid.Parse("cfbe4568-6faf-4a3a-b7eb-6a73ce005bbc"),
+                            Class = new Class { ClassName = "Acting" }
                         }
                     }
                 },
@@ -350,16 +350,16 @@ namespace SchoolProject.Tests.Services
                     {
                         new PersonClass
                         {
-                            Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                            User_ID = Guid.Parse("4ca1789c-b20c-4320-8472-c52ebeac47e0"),
-                            Class = new Class { Class_name = "Acting" }
+                            ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                            UserID = Guid.Parse("4ca1789c-b20c-4320-8472-c52ebeac47e0"),
+                            Class = new Class { ClassName = "Acting" }
                         }
                     }
                 }
             };
             DataMockSetup(dbPeople);
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
-                       .Returns<Person>(p => new GetPersonDto { User_ID = p.User_ID });
+                       .Returns<Person>(p => new GetPersonDto { UserID = p.UserID });
 
             //Act
             var result = await _personService.GetPeopleInClassByName("Acting");
@@ -392,21 +392,21 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var addPersonDto = new AddPersonDto
             {
-                First_name = "John",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+                FirstName = "John",
+                LastName = "Doe",
+                UserType = UserType.Teacher,
+                SchoolID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
 
             var expectedPerson = new Person
             {
-                User_ID = Guid.NewGuid(),
-                First_name = "John",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+                UserID = Guid.NewGuid(),
+                FirstName = "John",
+                LastName = "Doe",
+                UserType = UserType.Teacher,
+                SchoolID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
-            string expectedMessage = $"Successfully created new person with the first name of '{expectedPerson.First_name}'.";
+            string expectedMessage = $"Successfully created new person with the first name of '{expectedPerson.FirstName}'.";
 
             _mapperMock.Setup(p => p.Map<Person>(It.IsAny<AddPersonDto>())).Returns(expectedPerson);
 
@@ -416,10 +416,10 @@ namespace SchoolProject.Tests.Services
             _mapperMock.Setup(p => p.Map<GetPersonDto>(expectedPerson))
                        .Returns(new GetPersonDto
                        {
-                           First_name = expectedPerson.First_name,
-                           Last_name = expectedPerson.Last_name,
-                           User_type = expectedPerson.User_type,
-                           School_ID = expectedPerson.School_ID
+                           FirstName = expectedPerson.FirstName,
+                           LastName = expectedPerson.LastName,
+                           UserType = expectedPerson.UserType,
+                           SchoolID = expectedPerson.SchoolID
                        });
 
             _dataContextMock.Setup(context => context.Person)                
@@ -434,10 +434,10 @@ namespace SchoolProject.Tests.Services
             Assert.True(result.Success);
             Assert.Equal(expectedMessage, result.Message);
             Assert.NotNull(result.Data);            
-            Assert.Equal(result.Data[0].First_name, addPersonDto.First_name);
-            Assert.Equal(result.Data[0].Last_name, addPersonDto.Last_name);
-            Assert.Equal(result.Data[0].User_type, addPersonDto.User_type);
-            Assert.Equal(result.Data[0].School_ID, addPersonDto.School_ID);
+            Assert.Equal(result.Data[0].FirstName, addPersonDto.FirstName);
+            Assert.Equal(result.Data[0].LastName, addPersonDto.LastName);
+            Assert.Equal(result.Data[0].UserType, addPersonDto.UserType);
+            Assert.Equal(result.Data[0].SchoolID, addPersonDto.SchoolID);
         }
 
         [Fact]
@@ -446,18 +446,18 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var addPersonDto = new AddPersonDto
             {
-                First_name = "J",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+                FirstName = "J",
+                LastName = "Doe",
+                UserType = UserType.Teacher,
+                SchoolID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
             var newPerson = new Person
             {
-                User_ID = Guid.NewGuid(),
-                First_name = "J",
-                Last_name = "Doe",
-                User_type = UserType.Teacher,
-                School_ID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
+                UserID = Guid.NewGuid(),
+                FirstName = "J",
+                LastName = "Doe",
+                UserType = UserType.Teacher,
+                SchoolID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5")
             };
 
             _mapperMock.Setup(p => p.Map<Person>(addPersonDto)).Returns(newPerson);
@@ -483,24 +483,24 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var updatedPersonDto = new UpdatePersonDto
             {
-                User_ID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
-                First_name = "Tom",
-                Last_name = "Holland",
-                User_type = UserType.Pupil,
-                Date_of_birth = new DateTime(2010,3,10),
-                Year_group = 6,
-                School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+                UserID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
+                FirstName = "Tom",
+                LastName = "Holland",
+                UserType = UserType.Pupil,
+                DateOfBirth = new DateTime(2010,3,10),
+                YearGroup = 6,
+                SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
             };
 
             var expectedPerson = new Person
             {
-                User_ID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
-                First_name = "Tom",
-                Last_name = "Holland",
-                User_type = UserType.Pupil,
-                Date_of_birth = new DateTime(2010, 3, 10),
-                Year_group = 7,
-                School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+                UserID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
+                FirstName = "Tom",
+                LastName = "Holland",
+                UserType = UserType.Pupil,
+                DateOfBirth = new DateTime(2010, 3, 10),
+                YearGroup = 7,
+                SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
             };
 
             _mapperMock.Setup(p => p.Map<Person>(updatedPersonDto)).Returns(expectedPerson);
@@ -511,13 +511,13 @@ namespace SchoolProject.Tests.Services
             _mapperMock.Setup(p => p.Map<GetPersonDto>(It.IsAny<Person>()))
                        .Returns(new GetPersonDto
                         {
-                            User_ID = expectedPerson.User_ID,
-                            First_name = expectedPerson.First_name,
-                            Last_name = expectedPerson.Last_name,
-                            User_type = expectedPerson.User_type,
-                            Date_of_birth = expectedPerson.Date_of_birth,
-                            Year_group = expectedPerson.Year_group,
-                            School_ID = expectedPerson.School_ID
+                            UserID = expectedPerson.UserID,
+                            FirstName = expectedPerson.FirstName,
+                            LastName = expectedPerson.LastName,
+                            UserType = expectedPerson.UserType,
+                            DateOfBirth = expectedPerson.DateOfBirth,
+                            YearGroup = expectedPerson.YearGroup,
+                            SchoolID = expectedPerson.SchoolID
                         });
 
             _dataContextMock.Setup(context => context.Person)
@@ -532,11 +532,11 @@ namespace SchoolProject.Tests.Services
             Assert.True(result.Success);
             Assert.Equal("Successfully updated.", result.Message);
             Assert.NotNull(result.Data);
-            Assert.Equal(updatedPersonDto.User_ID, result.Data.User_ID);
-            Assert.Equal(updatedPersonDto.First_name, result.Data.First_name);
-            Assert.Equal(updatedPersonDto.Last_name, result.Data.Last_name);
-            Assert.Equal(updatedPersonDto.User_type, result.Data.User_type);
-            Assert.Equal(updatedPersonDto.School_ID, result.Data.School_ID);
+            Assert.Equal(updatedPersonDto.UserID, result.Data.UserID);
+            Assert.Equal(updatedPersonDto.FirstName, result.Data.FirstName);
+            Assert.Equal(updatedPersonDto.LastName, result.Data.LastName);
+            Assert.Equal(updatedPersonDto.UserType, result.Data.UserType);
+            Assert.Equal(updatedPersonDto.SchoolID, result.Data.SchoolID);
         }
 
         [Fact]
@@ -545,24 +545,24 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var updatedPersonDto = new UpdatePersonDto
             {
-                User_ID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
-                First_name = "Tom",
-                Last_name = "Holland",
-                User_type = UserType.Pupil,
-                Date_of_birth = new DateTime(2010, 3, 10),
-                Year_group = 6,
-                School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+                UserID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
+                FirstName = "Tom",
+                LastName = "Holland",
+                UserType = UserType.Pupil,
+                DateOfBirth = new DateTime(2010, 3, 10),
+                YearGroup = 6,
+                SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
             };
 
             var expectedPerson = new Person
             {
-                User_ID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
-                First_name = "Tom",
-                Last_name = "Holland",
-                User_type = UserType.Pupil,
-                Date_of_birth = new DateTime(2019, 3, 10),
-                Year_group = 6,
-                School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+                UserID = Guid.Parse("f6468ad4-7927-419c-9356-a29a25d894f8"),
+                FirstName = "Tom",
+                LastName = "Holland",
+                UserType = UserType.Pupil,
+                DateOfBirth = new DateTime(2019, 3, 10),
+                YearGroup = 6,
+                SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
             };
 
             _mapperMock.Setup(p => p.Map<Person>(updatedPersonDto)).Returns(expectedPerson);
@@ -592,11 +592,11 @@ namespace SchoolProject.Tests.Services
             {
                 new Person
                 {
-                    User_ID = personID,
-                    First_name = "Chris",
-                    Last_name = "Evans",
-                    User_type = UserType.Teacher,
-                    School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+                    UserID = personID,
+                    FirstName = "Chris",
+                    LastName = "Evans",
+                    UserType = UserType.Teacher,
+                    SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
                 }
             };
 
@@ -607,11 +607,11 @@ namespace SchoolProject.Tests.Services
             _mapperMock.Setup(p => p.Map<GetPersonDto>(dbPeople[0]))
                        .Returns(new GetPersonDto
                        {
-                           User_ID = dbPeople[0].User_ID,
-                           First_name = dbPeople[0].First_name,
-                           Last_name = dbPeople[0].Last_name,
-                           User_type = dbPeople[0].User_type,
-                           School_ID = dbPeople[0].School_ID
+                           UserID = dbPeople[0].UserID,
+                           FirstName = dbPeople[0].FirstName,
+                           LastName = dbPeople[0].LastName,
+                           UserType = dbPeople[0].UserType,
+                           SchoolID = dbPeople[0].SchoolID
                        });
 
             //Act
@@ -634,11 +634,11 @@ namespace SchoolProject.Tests.Services
             {
                 new Person
                 {
-                    User_ID = Guid.Parse("a9efa426-6ec3-490c-bab4-0b49150f9776"),
-                    First_name = "Chris",
-                    Last_name = "Evans",
-                    User_type = UserType.Teacher,
-                    School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
+                    UserID = Guid.Parse("a9efa426-6ec3-490c-bab4-0b49150f9776"),
+                    FirstName = "Chris",
+                    LastName = "Evans",
+                    UserType = UserType.Teacher,
+                    SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d")
                 }
             };
 

@@ -9,16 +9,16 @@ namespace SchoolProject.Data.EntitiesConfiguration
         public void Configure(EntityTypeBuilder<School> builder)
         {
             //configuring Primary Key
-            builder.HasKey(s => s.School_ID);
+            builder.HasKey(s => s.SchoolID);
 
             //specifying data types
             builder
-                .Property(s => s.School_ID)
+                .Property(s => s.SchoolID)
                 .HasColumnType("uniqueidentifier")
                 .HasDefaultValueSql("NEWID()");
 
             builder
-                .Property(s => s.School_name)
+                .Property(s => s.SchoolName)
                 .HasColumnType("nvarchar(50)");
 
             //seed Data
@@ -26,8 +26,8 @@ namespace SchoolProject.Data.EntitiesConfiguration
                 .HasData(
                     new School
                     {
-                        School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"),
-                        School_name = "Hollywood School"
+                        SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"),
+                        SchoolName = "Hollywood School"
                     }
                 );
         }

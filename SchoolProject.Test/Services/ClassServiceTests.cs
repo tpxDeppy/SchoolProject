@@ -31,13 +31,13 @@ namespace SchoolProject.Tests.Services
             {
                 new Class
                 {
-                    Class_ID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
-                    Class_name = "Scripting"
+                    ClassID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
+                    ClassName = "Scripting"
                 }
             };
             DataMockSetup(dbClasses);
             _mapperMock.Setup(c => c.Map<GetClassDto>(It.IsAny<Class>()))
-                       .Returns<Class>(c => new GetClassDto { Class_ID = c.Class_ID, Class_name = c.Class_name });
+                       .Returns<Class>(c => new GetClassDto { ClassID = c.ClassID, ClassName = c.ClassName });
 
             //Act
             var result = await _classService.GetAllClasses();
@@ -46,8 +46,8 @@ namespace SchoolProject.Tests.Services
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
             Assert.Equal(dbClasses.Count, result.Data.Count);
-            Assert.Equal(dbClasses[0].Class_ID, result.Data[0].Class_ID);
-            Assert.Equal(dbClasses[0].Class_name, result.Data[0].Class_name);
+            Assert.Equal(dbClasses[0].ClassID, result.Data[0].ClassID);
+            Assert.Equal(dbClasses[0].ClassName, result.Data[0].ClassName);
         }
 
         [Fact]
@@ -73,32 +73,32 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var dbClasses = new List<Class>()
             {
-                new Class { Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0") }
+                new Class { ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0") }
             };
             DataMockSetup(dbClasses);
             _mapperMock.Setup(c => c.Map<GetClassDto>(It.IsAny<Class>()))
-                       .Returns<Class>(c => new GetClassDto { Class_ID = c.Class_ID });
+                       .Returns<Class>(c => new GetClassDto { ClassID = c.ClassID });
 
             //Act
-            var result = await _classService.GetClassById(dbClasses[0].Class_ID);
+            var result = await _classService.GetClassById(dbClasses[0].ClassID);
 
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
-            Assert.Equal(dbClasses[0].Class_ID, result.Data.Class_ID);
+            Assert.Equal(dbClasses[0].ClassID, result.Data.ClassID);
         }
 
         [Fact]
         public async Task GetClassById_ReturnsNotFound_WhenClassDoesNotExist()
         {
             //Arrange
-            var dbClass = new Class { Class_ID = Guid.NewGuid() };
+            var dbClass = new Class { ClassID = Guid.NewGuid() };
             _dataContextMock.Setup(c => c.Class);
             _mapperMock.Setup(c => c.Map<GetClassDto>(It.IsAny<Class>()))
-                       .Returns<Class>(c => new GetClassDto { Class_ID = c.Class_ID });
+                       .Returns<Class>(c => new GetClassDto { ClassID = c.ClassID });
 
             //Act
-            var result = await _classService.GetClassById(dbClass.Class_ID);
+            var result = await _classService.GetClassById(dbClass.ClassID);
 
             //Assert
             Assert.False(result.Success);
@@ -110,31 +110,31 @@ namespace SchoolProject.Tests.Services
         public async Task GetClassByName_ReturnsOk_WhenClassExists()
         {
             //Arrange
-            var dbClasses = new List<Class>() { new Class { Class_name = "Singing" } };
+            var dbClasses = new List<Class>() { new Class { ClassName = "Singing" } };
             DataMockSetup(dbClasses);
             _mapperMock.Setup(c => c.Map<GetClassDto>(It.IsAny<Class>()))
-                       .Returns<Class>(c => new GetClassDto { Class_name = c.Class_name });
+                       .Returns<Class>(c => new GetClassDto { ClassName = c.ClassName });
 
             //Act
-            var result = await _classService.GetClassByName(dbClasses[0].Class_name);
+            var result = await _classService.GetClassByName(dbClasses[0].ClassName);
 
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
-            Assert.Equal(dbClasses[0].Class_name, result.Data.Class_name);
+            Assert.Equal(dbClasses[0].ClassName, result.Data.ClassName);
         }
 
         [Fact]
         public async Task GetClassByName_ReturnsNotFound_WhenClassDoesNotExist()
         {
             //Arrange
-            var dbClass = new Class { Class_name = "Math" };
+            var dbClass = new Class { ClassName = "Math" };
             _dataContextMock.Setup(c => c.Class);
             _mapperMock.Setup(c => c.Map<GetClassDto>(It.IsAny<Class>()))
-                       .Returns<Class>(c => new GetClassDto { Class_name = c.Class_name });
+                       .Returns<Class>(c => new GetClassDto { ClassName = c.ClassName });
 
             //Act
-            var result = await _classService.GetClassByName(dbClass.Class_name);
+            var result = await _classService.GetClassByName(dbClass.ClassName);
 
             //Assert
             Assert.False(result.Success);
@@ -148,26 +148,26 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var addClassDto = new AddClassDto
             {
-                Class_name = "New Class",
-                Class_description = "New Class description"
+                ClassName = "New Class",
+                ClassDescription = "New Class description"
             };
 
             var expectedClass = new Class
             {
-                Class_ID = Guid.NewGuid(),
-                Class_name = "New Class",
-                Class_description = "New Class description"
+                ClassID = Guid.NewGuid(),
+                ClassName = "New Class",
+                ClassDescription = "New Class description"
             };
-            string expectedMessage = $"Successfully created a class with the name of '{expectedClass.Class_name}'.";
+            string expectedMessage = $"Successfully created a class with the name of '{expectedClass.ClassName}'.";
 
             _mapperMock.Setup(c => c.Map<Class>(It.IsAny<AddClassDto>())).Returns(expectedClass);
             
             _mapperMock.Setup(c => c.Map<GetClassDto>(expectedClass))
                        .Returns(new GetClassDto
                        {
-                           Class_ID = expectedClass.Class_ID,
-                           Class_name = expectedClass.Class_name,
-                           Class_description = expectedClass.Class_description
+                           ClassID = expectedClass.ClassID,
+                           ClassName = expectedClass.ClassName,
+                           ClassDescription = expectedClass.ClassDescription
                        });
 
             _dataContextMock.Setup(context => context.Class)
@@ -182,9 +182,9 @@ namespace SchoolProject.Tests.Services
             Assert.True(result.Success);
             Assert.Equal(expectedMessage, result.Message);
             Assert.NotNull(result.Data);
-            Assert.Equal(expectedClass.Class_ID, result.Data[0].Class_ID);
-            Assert.Equal(expectedClass.Class_name, result.Data[0].Class_name);
-            Assert.Equal(expectedClass.Class_description, result.Data[0].Class_description);
+            Assert.Equal(expectedClass.ClassID, result.Data[0].ClassID);
+            Assert.Equal(expectedClass.ClassName, result.Data[0].ClassName);
+            Assert.Equal(expectedClass.ClassDescription, result.Data[0].ClassDescription);
         }
 
         [Fact]
@@ -193,16 +193,16 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var updatedClassDto = new UpdateClassDto
             {
-                Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                Class_name = "Acting",
-                Class_description = "How to act"
+                ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                ClassName = "Acting",
+                ClassDescription = "How to act"
             };
 
             var expectedClass = new Class
             {
-                Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                Class_name = "Acting",
-                Class_description = "How to act - part 1"
+                ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                ClassName = "Acting",
+                ClassDescription = "How to act - part 1"
             };
 
             _mapperMock.Setup(c => c.Map<Class>(updatedClassDto)).Returns(expectedClass);
@@ -210,9 +210,9 @@ namespace SchoolProject.Tests.Services
             _mapperMock.Setup(c => c.Map<GetClassDto>(It.IsAny<Class>()))
                        .Returns(new GetClassDto
                        {
-                           Class_ID = expectedClass.Class_ID,
-                           Class_name = expectedClass.Class_name,
-                           Class_description = expectedClass.Class_description
+                           ClassID = expectedClass.ClassID,
+                           ClassName = expectedClass.ClassName,
+                           ClassDescription = expectedClass.ClassDescription
                        });
 
             _dataContextMock.Setup(context => context.Class)
@@ -227,9 +227,9 @@ namespace SchoolProject.Tests.Services
             Assert.True(result.Success);
             Assert.Equal("Successfully updated.", result.Message);
             Assert.NotNull(result.Data);
-            Assert.Equal(expectedClass.Class_ID, result.Data.Class_ID);
-            Assert.Equal(expectedClass.Class_name, result.Data.Class_name);
-            Assert.Equal(expectedClass.Class_description, result.Data.Class_description);
+            Assert.Equal(expectedClass.ClassID, result.Data.ClassID);
+            Assert.Equal(expectedClass.ClassName, result.Data.ClassName);
+            Assert.Equal(expectedClass.ClassDescription, result.Data.ClassDescription);
         }
 
         [Fact]
@@ -238,18 +238,18 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var updatedClassDto = new UpdateClassDto
             {
-                Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
-                Class_name = "Acting",
-                Class_description = "How to act"
+                ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e0"),
+                ClassName = "Acting",
+                ClassDescription = "How to act"
             };
 
             var expectedClass = new Class
             {
-                Class_ID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e8"),
-                Class_name = "Acting",
-                Class_description = "How to act - part 1"
+                ClassID = Guid.Parse("b7f068af-3856-4d1b-9023-91a3d01ac1e8"),
+                ClassName = "Acting",
+                ClassDescription = "How to act - part 1"
             };
-            string expectedMessage = $"Class with ID of '{updatedClassDto.Class_ID}' could not be found.";
+            string expectedMessage = $"Class with ID of '{updatedClassDto.ClassID}' could not be found.";
 
             _mapperMock.Setup(c => c.Map<Class>(updatedClassDto)).Returns(expectedClass);
 
@@ -274,9 +274,9 @@ namespace SchoolProject.Tests.Services
             {
                 new Class
                 {
-                    Class_ID = classID,
-                    Class_name = "Scripting",
-                    Class_description = "How to write movie scripts"
+                    ClassID = classID,
+                    ClassName = "Scripting",
+                    ClassDescription = "How to write movie scripts"
                 }
             };
 
@@ -287,9 +287,9 @@ namespace SchoolProject.Tests.Services
             _mapperMock.Setup(c => c.Map<GetClassDto>(dbClasses[0]))
                        .Returns(new GetClassDto
                        {
-                           Class_ID = dbClasses[0].Class_ID,
-                           Class_name = dbClasses[0].Class_name,
-                           Class_description = dbClasses[0].Class_description
+                           ClassID = dbClasses[0].ClassID,
+                           ClassName = dbClasses[0].ClassName,
+                           ClassDescription = dbClasses[0].ClassDescription
                        });
 
             //Act
@@ -312,9 +312,9 @@ namespace SchoolProject.Tests.Services
             {
                 new Class
                 {
-                    Class_ID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
-                    Class_name = "Scripting",
-                    Class_description = "How to write movie scripts"
+                    ClassID = Guid.Parse("ebb7a0d9-730f-40f1-9b9c-541f371074ba"),
+                    ClassName = "Scripting",
+                    ClassDescription = "How to write movie scripts"
                 }
             };
 

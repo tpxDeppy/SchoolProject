@@ -31,13 +31,13 @@ namespace SchoolProject.Tests.Services
             {
                 new School
                 {
-                    School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"),
-                    School_name = "Hollywood School"
+                    SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"),
+                    SchoolName = "Hollywood School"
                 }
             };
             DataMockSetup(dbSchools);
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
-                       .Returns<School>(s => new GetSchoolDto { School_ID = s.School_ID, School_name = s.School_name });
+                       .Returns<School>(s => new GetSchoolDto { SchoolID = s.SchoolID, SchoolName = s.SchoolName });
 
             //Act
             var result = await _schoolService.GetSchools();
@@ -46,8 +46,8 @@ namespace SchoolProject.Tests.Services
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
             Assert.Equal(dbSchools.Count, result.Data.Count);
-            Assert.Equal(dbSchools[0].School_ID, result.Data[0].School_ID);
-            Assert.Equal(dbSchools[0].School_name, result.Data[0].School_name);
+            Assert.Equal(dbSchools[0].SchoolID, result.Data[0].SchoolID);
+            Assert.Equal(dbSchools[0].SchoolName, result.Data[0].SchoolName);
         }
 
         [Fact]
@@ -73,32 +73,32 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var dbSchools = new List<School>()
             {
-                new School { School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e") }
+                new School { SchoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e") }
             };
             DataMockSetup(dbSchools);
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
-                       .Returns<School>(s => new GetSchoolDto { School_ID = s.School_ID });
+                       .Returns<School>(s => new GetSchoolDto { SchoolID = s.SchoolID });
 
             //Act
-            var result = await _schoolService.GetSchoolById(dbSchools[0].School_ID);
+            var result = await _schoolService.GetSchoolById(dbSchools[0].SchoolID);
 
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
-            Assert.Equal(dbSchools[0].School_ID, result.Data.School_ID);
+            Assert.Equal(dbSchools[0].SchoolID, result.Data.SchoolID);
         }
 
         [Fact]
         public async Task GetSchoolById_ReturnsNotFound_WhenSchoolDoesNotExist()
         {
             //Arrange
-            var dbSchool = new School { School_ID = Guid.NewGuid() };
+            var dbSchool = new School { SchoolID = Guid.NewGuid() };
             _dataContextMock.Setup(s => s.School);
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
-                       .Returns<School>(s => new GetSchoolDto { School_ID = s.School_ID });
+                       .Returns<School>(s => new GetSchoolDto { SchoolID = s.SchoolID });
 
             //Act
-            var result = await _schoolService.GetSchoolById(dbSchool.School_ID);
+            var result = await _schoolService.GetSchoolById(dbSchool.SchoolID);
 
             //Assert
             Assert.False(result.Success);
@@ -110,31 +110,31 @@ namespace SchoolProject.Tests.Services
         public async Task GetSchoolByName_ReturnsOk_WhenSchoolExists()
         {
             //Arrange
-            var dbSchools = new List<School>() { new School { School_name = "LA School" } };
+            var dbSchools = new List<School>() { new School { SchoolName = "LA School" } };
             DataMockSetup(dbSchools);
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
-                       .Returns<School>(s => new GetSchoolDto { School_name = s.School_name });
+                       .Returns<School>(s => new GetSchoolDto { SchoolName = s.SchoolName });
 
             //Act
-            var result = await _schoolService.GetSchoolByName(dbSchools[0].School_name);
+            var result = await _schoolService.GetSchoolByName(dbSchools[0].SchoolName);
 
             //Assert
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
-            Assert.Equal(dbSchools[0].School_name, result.Data.School_name);
+            Assert.Equal(dbSchools[0].SchoolName, result.Data.SchoolName);
         }
 
         [Fact]
         public async Task GetSchoolByName_ReturnsNotFound_WhenSchoolDoesNotExist()
         {
             //Arrange
-            var dbSchool = new School { School_name = "A School" };
+            var dbSchool = new School { SchoolName = "A School" };
             _dataContextMock.Setup(s => s.School);
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
-                       .Returns<School>(s => new GetSchoolDto { School_name = s.School_name });
+                       .Returns<School>(s => new GetSchoolDto { SchoolName = s.SchoolName });
 
             //Act
-            var result = await _schoolService.GetSchoolByName(dbSchool.School_name);
+            var result = await _schoolService.GetSchoolByName(dbSchool.SchoolName);
 
             //Assert
             Assert.False(result.Success);
@@ -148,24 +148,24 @@ namespace SchoolProject.Tests.Services
             //Arrange
             var addSchoolDto = new AddSchoolDto
             {
-                School_name = "New School"
+                SchoolName = "New School"
             };
 
             var expectedSchool = new School
             {
-                School_ID = Guid.NewGuid(),
-                School_name = "New School"
+                SchoolID = Guid.NewGuid(),
+                SchoolName = "New School"
             };
 
-            string expectedMessage = $"Successfully created a school with the name of '{expectedSchool.School_name}'.";
+            string expectedMessage = $"Successfully created a school with the name of '{expectedSchool.SchoolName}'.";
             
             _mapperMock.Setup(s => s.Map<School>(It.IsAny<AddSchoolDto>())).Returns(expectedSchool);
 
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(expectedSchool))
                        .Returns(new GetSchoolDto
                        {
-                           School_ID = expectedSchool.School_ID,
-                           School_name = expectedSchool.School_name
+                           SchoolID = expectedSchool.SchoolID,
+                           SchoolName = expectedSchool.SchoolName
                        });            
 
             _dataContextMock.Setup(context => context.School)
@@ -180,8 +180,8 @@ namespace SchoolProject.Tests.Services
             Assert.NotNull(result.Data);
             Assert.True(result.Success);
             Assert.Equal(expectedMessage, result.Message);
-            Assert.Equal(expectedSchool.School_ID, result.Data[0].School_ID);
-            Assert.Equal(expectedSchool.School_name, result.Data[0].School_name);
+            Assert.Equal(expectedSchool.SchoolID, result.Data[0].SchoolID);
+            Assert.Equal(expectedSchool.SchoolName, result.Data[0].SchoolName);
         }
 
         [Fact]
@@ -191,14 +191,14 @@ namespace SchoolProject.Tests.Services
             Guid schoolID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5");
             var updatedSchoolDto = new UpdateSchoolDto
             {
-                School_ID = schoolID,
-                School_name = "LA School"
+                SchoolID = schoolID,
+                SchoolName = "LA School"
             };
 
             var expectedSchool = new School
             {
-                School_ID = schoolID,
-                School_name = "Los Angeles School"
+                SchoolID = schoolID,
+                SchoolName = "Los Angeles School"
             };
 
             _mapperMock.Setup(s => s.Map<School>(updatedSchoolDto)).Returns(expectedSchool);
@@ -206,8 +206,8 @@ namespace SchoolProject.Tests.Services
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
                        .Returns(new GetSchoolDto
                        {
-                           School_ID = expectedSchool.School_ID,
-                           School_name = expectedSchool.School_name
+                           SchoolID = expectedSchool.SchoolID,
+                           SchoolName = expectedSchool.SchoolName
                        });
 
             _dataContextMock.Setup(context => context.School)
@@ -222,8 +222,8 @@ namespace SchoolProject.Tests.Services
             Assert.NotNull(result.Data);
             Assert.True(result.Success);
             Assert.Equal("Successfully updated.", result.Message);
-            Assert.Equal(expectedSchool.School_ID, result.Data.School_ID);
-            Assert.Equal(expectedSchool.School_name, result.Data.School_name);
+            Assert.Equal(expectedSchool.SchoolID, result.Data.SchoolID);
+            Assert.Equal(expectedSchool.SchoolName, result.Data.SchoolName);
         }
 
         [Fact]
@@ -233,25 +233,25 @@ namespace SchoolProject.Tests.Services
             Guid schoolID = Guid.Parse("fec6caef-ccf0-408f-b3e6-21c3c75e18c5");
             var updatedSchoolDto = new UpdateSchoolDto
             {
-                School_ID = Guid.NewGuid(),
-                School_name = "LA School"
+                SchoolID = Guid.NewGuid(),
+                SchoolName = "LA School"
             };
 
             var expectedSchool = new School
             {
-                School_ID = schoolID,
-                School_name = "Los Angeles School"
+                SchoolID = schoolID,
+                SchoolName = "Los Angeles School"
             };
 
-            string expectedMessage = $"School with ID of '{updatedSchoolDto.School_ID}' could not be found.";
+            string expectedMessage = $"School with ID of '{updatedSchoolDto.SchoolID}' could not be found.";
 
             _mapperMock.Setup(s => s.Map<School>(updatedSchoolDto)).Returns(expectedSchool);
 
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
                        .Returns(new GetSchoolDto
                        {
-                           School_ID = expectedSchool.School_ID,
-                           School_name = expectedSchool.School_name
+                           SchoolID = expectedSchool.SchoolID,
+                           SchoolName = expectedSchool.SchoolName
                        });
 
             _dataContextMock.Setup(context => context.School)
@@ -273,7 +273,7 @@ namespace SchoolProject.Tests.Services
             Guid schoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e");
             var dbSchools = new List<School>()
             {
-                new School { School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e") }
+                new School { SchoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e") }
             };
 
             DataMockSetup(dbSchools);
@@ -283,7 +283,7 @@ namespace SchoolProject.Tests.Services
             _mapperMock.Setup(s => s.Map<GetSchoolDto>(It.IsAny<School>()))
                        .Returns(new GetSchoolDto
                        {
-                           School_ID = schoolID
+                           SchoolID = schoolID
                        });
 
             //Act
@@ -304,7 +304,7 @@ namespace SchoolProject.Tests.Services
             Guid schoolID = Guid.NewGuid();
             var dbSchools = new List<School>()
             {
-                new School { School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e") }
+                new School { SchoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e") }
             };
 
             string expectedMessage = $"School with ID of '{schoolID}' could not be found.";
