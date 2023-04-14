@@ -29,8 +29,7 @@ namespace SchoolProject.Services.Validation
 
             RuleFor(person => person.School_ID)
                 .NotNull().WithMessage("Please enter an ID")
-                .NotEmpty().WithMessage("Please enter an ID")
-                .Must(IsValidSchoolID).WithMessage("Please enter a valid School ID");
+                .NotEmpty().WithMessage("Please enter an ID");             
 
             RuleFor(person => person.Date_of_birth)
                 .Null()
@@ -63,12 +62,5 @@ namespace SchoolProject.Services.Validation
             }
             return false;
         }
-
-        private bool IsValidSchoolID(Guid schoolID)
-        {
-            return _dataContext.Set<School>()
-                               .Any(s => s.School_ID == schoolID);
-        }
-
     }
 }
