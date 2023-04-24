@@ -48,7 +48,7 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbClass = await _dataContext.Class.FirstOrDefaultAsync(c => c.Class_ID == id);
+                var dbClass = await _dataContext.Class.FirstOrDefaultAsync(c => c.ClassID == id);
                 serviceResponse.Data = _mapper.Map<GetClassDto>(dbClass);
 
                 if (dbClass is null)
@@ -71,7 +71,7 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbClass = await _dataContext.Class.FirstOrDefaultAsync(c => c.Class_name == className);
+                var dbClass = await _dataContext.Class.FirstOrDefaultAsync(c => c.ClassName == className);
                 serviceResponse.Data = _mapper.Map<GetClassDto>(dbClass);
 
                 if (dbClass is null)
@@ -96,7 +96,7 @@ namespace SchoolProject.Services.Implementations
             _dataContext.Class.Add(nClass);
             await _dataContext.SaveChangesAsync();
 
-            serviceResponse.Message = $"Successfully created a class with the name of '{newClass.Class_name}'.";
+            serviceResponse.Message = $"Successfully created a class with the name of '{newClass.ClassName}'.";
             serviceResponse.Data =
                 await _dataContext.Class.Select(c => _mapper.Map<GetClassDto>(c)).ToListAsync();
 
@@ -109,11 +109,11 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbClass = await _dataContext.Class.FirstOrDefaultAsync(c => c.Class_ID == updatedClass.Class_ID);
+                var dbClass = await _dataContext.Class.FirstOrDefaultAsync(c => c.ClassID == updatedClass.ClassID);
 
                 if (dbClass is null)
                 {
-                    throw new Exception($"Class with ID of '{updatedClass.Class_ID}' could not be found.");
+                    throw new Exception($"Class with ID of '{updatedClass.ClassID}' could not be found.");
                 }
 
                 dbClass = _mapper.Map(updatedClass, dbClass);
@@ -139,7 +139,7 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbClass = await _dataContext.Class.FirstOrDefaultAsync(c => c.Class_ID == id);
+                var dbClass = await _dataContext.Class.FirstOrDefaultAsync(c => c.ClassID == id);
 
                 if (dbClass is null)
                 {

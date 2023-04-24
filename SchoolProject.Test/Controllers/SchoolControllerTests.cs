@@ -16,8 +16,8 @@ namespace SchoolProject.Tests.Controllers
         private readonly Mock<ISchoolService> _schoolServiceMock;
         private readonly School exampleSchool = new School
         {
-            School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
-            School_name = "Sydney School"
+            SchoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
+            SchoolName = "Sydney School"
         };
 
         public SchoolControllerTests() 
@@ -41,13 +41,13 @@ namespace SchoolProject.Tests.Controllers
                 {
                     new GetSchoolDto
                     {
-                        School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
-                        School_name = "Sydney School"
+                        SchoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
+                        SchoolName = "Sydney School"
                     },
                     new GetSchoolDto
                     {
-                        School_ID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"),
-                        School_name = "Hollywood School"
+                        SchoolID = Guid.Parse("fd619e90-2c3d-441c-8ca2-ba278e6ea24d"),
+                        SchoolName = "Hollywood School"
                     }
                 }
             };
@@ -95,8 +95,8 @@ namespace SchoolProject.Tests.Controllers
             {
                 Data = new GetSchoolDto
                 {
-                    School_ID = schoolID,
-                    School_name = "Sydney School"
+                    SchoolID = schoolID,
+                    SchoolName = "Sydney School"
                 }
             };
 
@@ -144,8 +144,8 @@ namespace SchoolProject.Tests.Controllers
             {
                 Data = new GetSchoolDto
                 {
-                    School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
-                    School_name = schoolName
+                    SchoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
+                    SchoolName = schoolName
                 }
             };
 
@@ -190,7 +190,7 @@ namespace SchoolProject.Tests.Controllers
             //Arrange
             var addSchoolDto = new AddSchoolDto
             {
-                School_name = "New School"
+                SchoolName = "New School"
             };
             var expectedResponse = new ServiceResponse<List<GetSchoolDto>>
             {
@@ -198,8 +198,8 @@ namespace SchoolProject.Tests.Controllers
                 {
                     new GetSchoolDto
                     {
-                        School_ID = Guid.NewGuid(),
-                        School_name = addSchoolDto.School_name
+                        SchoolID = Guid.NewGuid(),
+                        SchoolName = addSchoolDto.SchoolName
                     }
                 }
             };
@@ -223,17 +223,17 @@ namespace SchoolProject.Tests.Controllers
             Guid schoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e");
             var updatedSchoolDto = new UpdateSchoolDto
             {
-                School_ID = schoolID,
-                School_name = "Sydney School"
+                SchoolID = schoolID,
+                SchoolName = "Sydney School"
             };
             var expectedSchool = exampleSchool;
-            exampleSchool.School_name = "Syd School";
+            exampleSchool.SchoolName = "Syd School";
             var expectedResponse = new ServiceResponse<GetSchoolDto>
             {
                 Data = new GetSchoolDto
                 {
-                    School_ID = expectedSchool.School_ID,
-                    School_name = expectedSchool.School_name
+                    SchoolID = expectedSchool.SchoolID,
+                    SchoolName = expectedSchool.SchoolName
                 }
             };
 
@@ -256,8 +256,8 @@ namespace SchoolProject.Tests.Controllers
             Guid schoolID = Guid.NewGuid();
             var updatedSchoolDto = new UpdateSchoolDto
             {
-                School_ID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
-                School_name = "Sydney School"
+                SchoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e"),
+                SchoolName = "Sydney School"
             };
             var expectedResponse = new ServiceResponse<GetSchoolDto>
             {
@@ -283,8 +283,8 @@ namespace SchoolProject.Tests.Controllers
             Guid schoolID = Guid.NewGuid();
             var updatedSchoolDto = new UpdateSchoolDto
             {
-                School_ID = schoolID,
-                School_name = "Sydney School"
+                SchoolID = schoolID,
+                SchoolName = "Sydney School"
             };
             var expectedResponse = new ServiceResponse<GetSchoolDto>
             {
@@ -308,7 +308,7 @@ namespace SchoolProject.Tests.Controllers
             //Arrange
             Guid schoolID = Guid.Parse("fc711e2f-de88-4537-8582-3f4ab10bb21e");
             var schoolToBeDeleted = exampleSchool;
-            schoolToBeDeleted.School_ID = schoolID;            
+            schoolToBeDeleted.SchoolID = schoolID;            
             var expectedResponse = new ServiceResponse<List<GetSchoolDto>>
             {
                 Success = true,

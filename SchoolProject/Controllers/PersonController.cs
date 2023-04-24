@@ -132,7 +132,7 @@ namespace SchoolProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<ServiceResponse<GetPersonDto>>> UpdatePerson(Guid id, UpdatePersonDto updatedPerson)
         {
-            if (id != updatedPerson.User_ID)
+            if (id != updatedPerson.UserID)
             {
                 return BadRequest("Bad request. Please check that the IDs match.");
             }

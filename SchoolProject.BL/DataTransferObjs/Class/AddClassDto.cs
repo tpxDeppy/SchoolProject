@@ -3,8 +3,8 @@ namespace SchoolProject.Models.DataTransferObjs.Class
 {
     public class AddClassDto
     {
-        public string Class_name { get; set; }
-        public string Class_description { get; set; }
+        public string ClassName { get; set; }
+        public string ClassDescription { get; set; }
 
     }
 }

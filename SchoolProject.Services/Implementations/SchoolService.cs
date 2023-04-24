@@ -47,7 +47,7 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbSchool = await _dataContext.School.FirstOrDefaultAsync(s => s.School_ID == id);
+                var dbSchool = await _dataContext.School.FirstOrDefaultAsync(s => s.SchoolID == id);
                 serviceResponse.Data = _mapper.Map<GetSchoolDto>(dbSchool);
 
                 if (dbSchool is null)
@@ -70,7 +70,7 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbSchool = await _dataContext.School.FirstOrDefaultAsync(s => s.School_name == schoolName);
+                var dbSchool = await _dataContext.School.FirstOrDefaultAsync(s => s.SchoolName == schoolName);
                 serviceResponse.Data = _mapper.Map<GetSchoolDto>(dbSchool);
 
                 if (dbSchool is null)
@@ -95,7 +95,7 @@ namespace SchoolProject.Services.Implementations
             _dataContext.School.Add(school);
             await _dataContext.SaveChangesAsync();
 
-            serviceResponse.Message = $"Successfully created a school with the name of '{newSchool.School_name}'.";
+            serviceResponse.Message = $"Successfully created a school with the name of '{newSchool.SchoolName}'.";
             serviceResponse.Data =
                 await _dataContext.School.Select(s => _mapper.Map<GetSchoolDto>(s)).ToListAsync();
             return serviceResponse;
@@ -107,11 +107,11 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbSchool = await _dataContext.School.FirstOrDefaultAsync(s => s.School_ID == updatedSchool.School_ID);
+                var dbSchool = await _dataContext.School.FirstOrDefaultAsync(s => s.SchoolID == updatedSchool.SchoolID);
 
                 if (dbSchool is null)
                 {
-                    throw new Exception($"School with ID of '{updatedSchool.School_ID}' could not be found.");
+                    throw new Exception($"School with ID of '{updatedSchool.SchoolID}' could not be found.");
                 }
 
                 dbSchool = _mapper.Map(updatedSchool, dbSchool);
@@ -136,7 +136,7 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbSchool = await _dataContext.School.FirstOrDefaultAsync(s => s.School_ID == id);
+                var dbSchool = await _dataContext.School.FirstOrDefaultAsync(s => s.SchoolID == id);
 
                 if (dbSchool is null)
                 {
