@@ -9,6 +9,18 @@ using SchoolProject.Models.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Enabling CORS in order to be able to fetch the API in the frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowTrustedOrigins",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -39,12 +51,20 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI();    
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors("AllowTrustedOrigins");
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+    await next();
+});
 
 app.MapControllers();
 

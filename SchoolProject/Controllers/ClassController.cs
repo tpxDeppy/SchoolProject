@@ -2,6 +2,7 @@
 using SchoolProject.Services.Interfaces;
 using SchoolProject.Models.DataTransferObjs.Class;
 using SchoolProject.Models.Entities;
+using Microsoft.AspNetCore.Cors;
 
 namespace SchoolProject.API.Controllers
 {
@@ -17,6 +18,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("AllClasses")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<List<GetClassDto>>>> GetAllClasses()
         {
             var response = await _classService.GetAllClasses();
@@ -30,6 +32,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<GetClassDto>>> GetClassById(Guid id)
         {
             var response = await _classService.GetClassById(id);
@@ -43,6 +46,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("Class/{className}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<GetClassDto>>> GetClassByName(string className)
         {
             var response = await _classService.GetClassByName(className);
@@ -56,6 +60,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpPost("AddClass")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<List<GetClassDto>>> AddClass(AddClassDto newClass)
         {
             var response = await _classService.AddClass(newClass);
@@ -63,6 +68,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<GetClassDto>> UpdateClass(Guid id, UpdateClassDto updatedClass)
         {
             if (id != updatedClass.ClassID)
@@ -81,6 +87,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<List<GetClassDto>>> DeleteClass(Guid id)
         {
             var response = await _classService.DeleteClass(id);
