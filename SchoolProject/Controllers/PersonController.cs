@@ -3,7 +3,7 @@ using SchoolProject.Services.Interfaces;
 using SchoolProject.Models.DataTransferObjs.Person;
 using SchoolProject.Models.Entities;
 using SchoolProject.Models.Entities.Enums;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Cors;
 
 namespace SchoolProject.API.Controllers
 {
@@ -19,6 +19,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("GetAll")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<List<GetPersonDto>>> GetAll()
         {
             var response = await _personService.GetAllPeople();
@@ -32,6 +33,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetSinglePerson(Guid id)
         {
             var response = await _personService.GetPersonById(id);
@@ -45,6 +47,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("User/{lastName}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<GetPersonDto>>> GetPersonByLastName(string lastName)
         {
             var response = await _personService.GetPersonByLastName(lastName);
@@ -58,6 +61,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("UserType/{userType}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPersonByUserType(UserType userType)
         {
             var response = await _personService.GetPeopleByUserType(userType);
@@ -71,6 +75,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("Pupil/{yearGroup}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPupilsByYearGroup(int yearGroup)
         {
             var response = await _personService.GetPupilsByYearGroup(yearGroup);
@@ -84,6 +89,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("{schoolID}/people")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPeopleFromSchool(Guid schoolID)
         {
             var response = await _personService.GetPeopleFromSchool(schoolID);
@@ -97,6 +103,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("{classID}/peopleInClass")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPeopleInClass(Guid classID)
         {
             var response = await _personService.GetPeopleInClass(classID);
@@ -110,6 +117,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("{className}/peopleInClassByName")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPeopleInClassByName(string className)
         {
             var response = await _personService.GetPeopleInClassByName(className);
@@ -123,6 +131,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpPost("AddPerson")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> AddPerson(AddPersonDto newPerson)
         {
             var response = await _personService.AddPerson(newPerson);
@@ -130,6 +139,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<GetPersonDto>>> UpdatePerson(Guid id, UpdatePersonDto updatedPerson)
         {
             if (id != updatedPerson.UserID)
@@ -148,6 +158,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<GetPersonDto>>> DeletePerson(Guid id)
         {
             var response = await _personService.DeletePerson(id);

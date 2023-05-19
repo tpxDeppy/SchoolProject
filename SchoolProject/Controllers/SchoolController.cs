@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Services.Interfaces;
 using SchoolProject.Models.DataTransferObjs.School;
+using Microsoft.AspNetCore.Cors;
 
 namespace SchoolProject.API.Controllers
 {
@@ -16,6 +17,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("All")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<List<GetSchoolDto>>> GetSchools()
         {
             var response = await _schoolService.GetSchools();
@@ -29,6 +31,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<GetSchoolDto>> GetSchoolById(Guid id)
         {
             var response = await _schoolService.GetSchoolById(id);
@@ -42,6 +45,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpGet("School/{schoolName}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<List<GetSchoolDto>>> GetSchoolByName(string schoolName)
         {
             var response = await _schoolService.GetSchoolByName(schoolName);
@@ -55,6 +59,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpPost("AddSchool")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<List<GetSchoolDto>>> AddSchool(AddSchoolDto newSchool)
         {
             var response = await _schoolService.AddSchool(newSchool);
@@ -62,6 +67,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<GetSchoolDto>> UpdateSchool(Guid id, UpdateSchoolDto updatedSchool)
         {
             if (id != updatedSchool.SchoolID)
@@ -80,6 +86,7 @@ namespace SchoolProject.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<GetSchoolDto>> DeleteSchool(Guid id)
         {
             var response = await _schoolService.DeleteSchool(id);
