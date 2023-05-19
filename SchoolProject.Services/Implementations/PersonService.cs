@@ -23,13 +23,44 @@ namespace SchoolProject.Services.Implementations
             _validator = validator;
         }
 
-        public async Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople()
+        public async Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople(string? filterOn = null, string? filterQuery = null)
         {
             var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
 
             try
             {
-                var dbPeople = await _dataContext.Person.ToListAsync();
+                var dbPeopleQueryable = _dataContext.Person.AsQueryable();
+
+                //Filtering
+                if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
+                {
+                    if (filterOn.Equals("LastName", StringComparison.OrdinalIgnoreCase))
+                    {
+                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.LastName.Contains(filterQuery));
+                    }
+
+                    if (filterOn.Equals("UserType", StringComparison.OrdinalIgnoreCase))
+                    {
+                        UserType userType;
+                        if (Enum.TryParse<UserType>(filterQuery, out userType))
+                        {
+                            dbPeopleQueryable = dbPeopleQueryable.Where(p => p.UserType.Equals(userType));
+                        }                        
+                    }
+
+                    if (filterOn.Equals("YearGroup", StringComparison.OrdinalIgnoreCase))
+                    {
+                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.YearGroup.ToString().Contains(filterQuery));
+                    }
+
+                    if (filterOn.Equals("SchoolName", StringComparison.OrdinalIgnoreCase))
+                    {
+                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.School.SchoolName.Contains(filterQuery));
+                    }
+                }
+
+                var dbPeople = await dbPeopleQueryable.ToListAsync();
+       
                 serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)

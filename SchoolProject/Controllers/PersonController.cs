@@ -20,9 +20,10 @@ namespace SchoolProject.API.Controllers
 
         [HttpGet("GetAll")]
         [EnableCors("AllowTrustedOrigins")]
-        public async Task<ActionResult<List<GetPersonDto>>> GetAll()
+        // GET: Person/GetAll?filterOn=LastName&filterQuery=
+        public async Task<ActionResult<List<GetPersonDto>>> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery)
         {
-            var response = await _personService.GetAllPeople();
+            var response = await _personService.GetAllPeople(filterOn, filterQuery);
             
             if (response.Data is null) 
             { 
