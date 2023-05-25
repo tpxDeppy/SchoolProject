@@ -7,6 +7,8 @@ using SchoolProject.Models.Entities.Enums;
 using SchoolProject.Data;
 using SchoolProject.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Azure;
 
 namespace SchoolProject.Services.Implementations
 {
@@ -89,6 +91,60 @@ namespace SchoolProject.Services.Implementations
                 if (dbPerson is null)
                 {
                     throw new Exception($"Could not find a person with ID of '{id}'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<List<GetPersonDto>>> GetPersonBySearchParams(SearchPersonParamsDto searchParams)
+        {
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+
+            try
+            {
+                var dbPeopleQueryable = _dataContext.Person.AsQueryable();
+
+                if (!searchParams.FirstName.IsNullOrEmpty())
+                {
+                    dbPeopleQueryable = dbPeopleQueryable.Where(p => p.FirstName.Contains(searchParams.FirstName));
+                }
+
+                if (!searchParams.LastName.IsNullOrEmpty())
+                {
+                    dbPeopleQueryable = dbPeopleQueryable.Where(p=> p.LastName.Contains(searchParams.LastName));
+                }
+
+                if (!searchParams.UserType.IsNullOrEmpty())
+                {
+                    UserType userType;
+                    if (Enum.TryParse<UserType>(searchParams.UserType, out userType))
+                    {
+                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.UserType.Equals(userType));
+                    }
+                }
+
+                if (!searchParams.SchoolName.IsNullOrEmpty())
+                {
+                    dbPeopleQueryable = dbPeopleQueryable.Where(p => p.School.SchoolName.Contains(searchParams.SchoolName));
+                }
+
+                if (searchParams.YearGroup is not null)
+                {
+                    dbPeopleQueryable = dbPeopleQueryable.Where(p => p.YearGroup == searchParams.YearGroup);
+                }
+
+                var dbPeople = await dbPeopleQueryable.ToListAsync();
+                serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
+
+                if (dbPeople is null || dbPeople.Count == 0)
+                {
+                    throw new Exception("Please enter a valid query. Could not find any data based on what was requested.");
                 }
             }
             catch (Exception ex)
@@ -289,6 +345,12 @@ namespace SchoolProject.Services.Implementations
                 }
 
                 dbPerson = _mapper.Map(updatedPerson, dbPerson);
+
+                if (updatedPerson.UserType == UserType.Teacher && updatedPerson.DateOfBirth != null &&
+                updatedPerson.YearGroup != null)
+                {
+                    throw new Exception("Date of birth and year group must be null when the user type of the person is 'Teacher'.");
+                }
 
                 await _dataContext.SaveChangesAsync();
 

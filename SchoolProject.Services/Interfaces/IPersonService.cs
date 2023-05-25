@@ -8,6 +8,7 @@ namespace SchoolProject.Services.Interfaces
     {
         Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople(string? filterOn = null, string? filterQuery = null);
         Task<ServiceResponse<GetPersonDto>> GetPersonById(Guid id);
+        Task<ServiceResponse<List<GetPersonDto>>> GetPersonBySearchParams(SearchPersonParamsDto searchParams);
         Task<ServiceResponse<GetPersonDto>> GetPersonByLastName(string lastName);
         Task<ServiceResponse<List<GetPersonDto>>> GetPeopleByUserType(UserType userType);
         Task<ServiceResponse<List<GetPersonDto>>> GetPupilsByYearGroup(int yearGroup);
