@@ -16,6 +16,7 @@ namespace SchoolProject.Services.Interfaces
         Task<ServiceResponse<List<GetPersonDto>>> GetPeopleInClass(Guid classID);
         Task<ServiceResponse<List<GetPersonDto>>> GetPeopleInClassByName(string className);
         Task<ServiceResponse<List<GetPersonDto>>> AddPerson(AddPersonDto newPerson);
+        Task<ServiceResponse<List<GetPersonDto>>> AddClassesToPerson(Guid userID, List<Guid> classIDs);
         Task<ServiceResponse<GetPersonDto>> UpdatePerson(UpdatePersonDto updatedPerson);
         Task<ServiceResponse<List<GetPersonDto>>> DeletePerson(Guid id);
 

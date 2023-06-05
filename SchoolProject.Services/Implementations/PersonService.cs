@@ -61,7 +61,7 @@ namespace SchoolProject.Services.Implementations
                     }
                 }
 
-                var dbPeople = await dbPeopleQueryable.ToListAsync();
+                var dbPeople = await dbPeopleQueryable.Include(p => p.PersonClasses).ThenInclude(pc => pc.Class).ToListAsync();
        
                 serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
 
@@ -85,7 +85,9 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.UserID == id);
+                var dbPerson = await _dataContext.Person.Include(p => p.PersonClasses)
+                                                        .ThenInclude(pc => pc.Class)
+                                                        .FirstOrDefaultAsync(p => p.UserID == id);
                 serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
 
                 if (dbPerson is null)
@@ -139,7 +141,13 @@ namespace SchoolProject.Services.Implementations
                     dbPeopleQueryable = dbPeopleQueryable.Where(p => p.YearGroup == searchParams.YearGroup);
                 }
 
-                var dbPeople = await dbPeopleQueryable.ToListAsync();
+                if (!searchParams.ClassName.IsNullOrEmpty())
+                {
+                    dbPeopleQueryable = dbPeopleQueryable.Where(p => p.PersonClasses.Select(pc => pc.Class.ClassName)
+                                                                                    .Contains(searchParams.ClassName));
+                }
+
+                var dbPeople = await dbPeopleQueryable.Include(p => p.PersonClasses).ThenInclude(pc => pc.Class).ToListAsync();
                 serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
 
                 if (dbPeople is null || dbPeople.Count == 0)
@@ -313,10 +321,51 @@ namespace SchoolProject.Services.Implementations
                 return serviceResponse;
             }
 
+            foreach (var personClass in person.PersonClasses)
+            {
+                var schoolClass = await _dataContext.Class.FindAsync(personClass.ClassID);
+
+                if (schoolClass is null)
+                {
+                    throw new Exception($"Class with ID '{personClass.ClassID}' could not be found.");
+                }
+
+                personClass.Class = schoolClass;
+            }
+
             _dataContext.Person.Add(person);
             await _dataContext.SaveChangesAsync();
 
             serviceResponse.Message = $"Successfully created new person with the first name of '{newPerson.FirstName}'.";
+            serviceResponse.Data =
+                await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<List<GetPersonDto>>> AddClassesToPerson(Guid userID, List<Guid> classIDs)
+        {
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+            var dbPerson = await _dataContext.Person.FindAsync(userID);
+
+            if (dbPerson is null)
+            {
+                throw new Exception($"Person with ID '{userID}' could not be found.");
+            }
+
+            var classes = await _dataContext.Class.Where(c => classIDs.Contains(c.ClassID))
+                                                  .ToListAsync();
+
+            var personClasses = _mapper.Map<List<PersonClass>>(classes);
+
+            foreach (var personClass in personClasses)
+            {
+                personClass.Person = dbPerson;
+            }
+
+            _dataContext.PersonClass.AddRange(personClasses);
+            await _dataContext.SaveChangesAsync();
+
+            serviceResponse.Message = "Successfully added.";
             serviceResponse.Data =
                 await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
             return serviceResponse;

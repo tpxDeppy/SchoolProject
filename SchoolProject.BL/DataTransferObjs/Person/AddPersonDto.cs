@@ -10,8 +10,8 @@ namespace SchoolProject.Models.DataTransferObjs.Person
         public DateTime? DateOfBirth { get; set; } 
         public int? YearGroup { get; set; } 
 
-        public Guid SchoolID { get; set; } 
-        
+        public Guid SchoolID { get; set; }
 
+        public List<AddPersonClassDto>? PersonClasses { get; set; }
     }
 }

@@ -153,6 +153,14 @@ namespace SchoolProject.API.Controllers
             return Created(nameof(GetSinglePerson), response);
         }
 
+        [HttpPost("Person/AddClassesToPerson")]
+        [EnableCors("AllowTrustedOrigins")]
+        public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> AddClassesToPerson(Guid userID, List<Guid> classIDs)
+        {
+            var response = await _personService.AddClassesToPerson(userID, classIDs);
+            return Created(nameof(GetSinglePerson), response);
+        }
+
         [HttpPut("{id}")]
         [EnableCors("AllowTrustedOrigins")]
         public async Task<ActionResult<ServiceResponse<GetPersonDto>>> UpdatePerson(Guid id, UpdatePersonDto updatedPerson)

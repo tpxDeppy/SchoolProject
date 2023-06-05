@@ -1,4 +1,5 @@
-﻿using SchoolProject.Models.Entities.Enums;
+﻿using SchoolProject.Models.Entities;
+using SchoolProject.Models.Entities.Enums;
 
 namespace SchoolProject.Models.DataTransferObjs.Person
 {
@@ -14,5 +15,7 @@ namespace SchoolProject.Models.DataTransferObjs.Person
         public int? YearGroup { get; set; } 
 
         public Guid SchoolID { get; set; }
+
+        public ICollection<PersonClass> PersonClasses { get; set; }
     }
 }

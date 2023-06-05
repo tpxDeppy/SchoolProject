@@ -10,7 +10,7 @@ namespace SchoolProject.Services.Mappers
         {
             CreateMap<Person, GetPersonDto>();
             CreateMap<AddPersonDto, Person>();
-            CreateMap<UpdatePersonDto, Person>();
+            CreateMap<UpdatePersonDto, Person>();           
         }
 
     }
