@@ -20,9 +20,10 @@ namespace SchoolProject.API.Controllers
 
         [HttpGet("GetAll")]
         [EnableCors("AllowTrustedOrigins")]
-        public async Task<ActionResult<List<GetPersonDto>>> GetAll()
+        // GET: Person/GetAll?filterOn=LastName&filterQuery=
+        public async Task<ActionResult<List<GetPersonDto>>> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery)
         {
-            var response = await _personService.GetAllPeople();
+            var response = await _personService.GetAllPeople(filterOn, filterQuery);
             
             if (response.Data is null) 
             { 
@@ -39,6 +40,20 @@ namespace SchoolProject.API.Controllers
             var response = await _personService.GetPersonById(id);
 
             if (response.Data is null)
+            {
+                return NotFound(response.Message);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("UserSearch")]
+        [EnableCors("AllowTrustedOrigins")]
+        public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> GetPersonBySearchParams([FromQuery] SearchPersonParamsDto searchParams)
+        {
+            var response = await _personService.GetPersonBySearchParams(searchParams);
+
+            if (response.Data is null || response.Data.Count == 0)
             {
                 return NotFound(response.Message);
             }
@@ -151,11 +166,15 @@ namespace SchoolProject.API.Controllers
 
             if (response.Data is null)
             {
+                if (updatedPerson.UserType == UserType.Teacher)
+                {
+                    return BadRequest(response.Message);
+                }
                 return NotFound(response.Message);
             }
 
             return Ok(response);
-        }
+         }
 
         [HttpDelete("{id}")]
         [EnableCors("AllowTrustedOrigins")]
