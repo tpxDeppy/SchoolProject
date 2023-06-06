@@ -9,8 +9,8 @@ namespace SchoolProject.Services.Mappers
         public PersonClassProfile()
         {
             CreateMap<PersonClass, Class>().ReverseMap();
-            CreateMap<AddPersonClassDto, PersonClass>();
-            CreateMap<AddPersonClassDto, Person>();
+            CreateMap<PersonClassDto, PersonClass>();
+            CreateMap<PersonClassDto, Person>();
         }
     }
 }

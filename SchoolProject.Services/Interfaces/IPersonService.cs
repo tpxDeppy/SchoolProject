@@ -6,7 +6,7 @@ namespace SchoolProject.Services.Interfaces
 {
     public interface IPersonService
     {
-        Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople(string? filterOn = null, string? filterQuery = null);
+        Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople();
         Task<ServiceResponse<GetPersonDto>> GetPersonById(Guid id);
         Task<ServiceResponse<List<GetPersonDto>>> GetPersonBySearchParams(SearchPersonParamsDto searchParams);
         Task<ServiceResponse<GetPersonDto>> GetPersonByLastName(string lastName);

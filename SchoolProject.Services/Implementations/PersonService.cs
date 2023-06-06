@@ -8,7 +8,6 @@ using SchoolProject.Data;
 using SchoolProject.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Azure;
 
 namespace SchoolProject.Services.Implementations
 {
@@ -25,43 +24,13 @@ namespace SchoolProject.Services.Implementations
             _validator = validator;
         }
 
-        public async Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople(string? filterOn = null, string? filterQuery = null)
+        public async Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople()
         {
             var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
 
             try
-            {
-                var dbPeopleQueryable = _dataContext.Person.AsQueryable();
-
-                //Filtering
-                if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
-                {
-                    if (filterOn.Equals("LastName", StringComparison.OrdinalIgnoreCase))
-                    {
-                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.LastName.Contains(filterQuery));
-                    }
-
-                    if (filterOn.Equals("UserType", StringComparison.OrdinalIgnoreCase))
-                    {
-                        UserType userType;
-                        if (Enum.TryParse<UserType>(filterQuery, out userType))
-                        {
-                            dbPeopleQueryable = dbPeopleQueryable.Where(p => p.UserType.Equals(userType));
-                        }                        
-                    }
-
-                    if (filterOn.Equals("YearGroup", StringComparison.OrdinalIgnoreCase))
-                    {
-                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.YearGroup.ToString().Contains(filterQuery));
-                    }
-
-                    if (filterOn.Equals("SchoolName", StringComparison.OrdinalIgnoreCase))
-                    {
-                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.School.SchoolName.Contains(filterQuery));
-                    }
-                }
-
-                var dbPeople = await dbPeopleQueryable.Include(p => p.PersonClasses).ThenInclude(pc => pc.Class).ToListAsync();
+            {                
+                var dbPeople = await _dataContext.Person.Include(p => p.PersonClasses).ThenInclude(pc => pc.Class).ToListAsync();
        
                 serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
 
@@ -323,6 +292,11 @@ namespace SchoolProject.Services.Implementations
 
             foreach (var personClass in person.PersonClasses)
             {
+                if (personClass is null)
+                {
+                    throw new Exception($"{personClass}' could not be found.");
+                }
+
                 var schoolClass = await _dataContext.Class.FindAsync(personClass.ClassID);
 
                 if (schoolClass is null)
@@ -399,6 +373,23 @@ namespace SchoolProject.Services.Implementations
                 updatedPerson.YearGroup != null)
                 {
                     throw new Exception("Date of birth and year group must be null when the user type of the person is 'Teacher'.");
+                }
+
+                foreach (var personClass in dbPerson.PersonClasses)
+                {
+                    if (personClass is null)
+                    {
+                        throw new Exception($"{personClass}' could not be found.");
+                    }
+
+                    var schoolClass = await _dataContext.Class.FindAsync(personClass.ClassID);
+
+                    if (schoolClass is null)
+                    {
+                        throw new Exception($"Class with ID '{personClass.ClassID}' could not be found.");
+                    }
+
+                    personClass.Class = schoolClass;
                 }
 
                 await _dataContext.SaveChangesAsync();
