@@ -8,7 +8,6 @@ using SchoolProject.Data;
 using SchoolProject.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Azure;
 
 namespace SchoolProject.Services.Implementations
 {
@@ -25,45 +24,25 @@ namespace SchoolProject.Services.Implementations
             _validator = validator;
         }
 
-        public async Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople(string? filterOn = null, string? filterQuery = null)
+        public async Task<ServiceResponse<List<GetPersonDto>>> GetAllPeople()
         {
             var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
 
             try
-            {
-                var dbPeopleQueryable = _dataContext.Person.AsQueryable();
+            {                
+                var dbPeople = await _dataContext.Person.Include(p => p.PersonClasses).ToListAsync();
 
-                //Filtering
-                if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
+                var listOfDbPeople = _mapper.Map<List<GetPersonDto>>(dbPeople);
+
+                foreach (var person in listOfDbPeople)
                 {
-                    if (filterOn.Equals("LastName", StringComparison.OrdinalIgnoreCase))
+                    foreach (var personClass in person.PersonClasses)
                     {
-                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.LastName.Contains(filterQuery));
-                    }
-
-                    if (filterOn.Equals("UserType", StringComparison.OrdinalIgnoreCase))
-                    {
-                        UserType userType;
-                        if (Enum.TryParse<UserType>(filterQuery, out userType))
-                        {
-                            dbPeopleQueryable = dbPeopleQueryable.Where(p => p.UserType.Equals(userType));
-                        }                        
-                    }
-
-                    if (filterOn.Equals("YearGroup", StringComparison.OrdinalIgnoreCase))
-                    {
-                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.YearGroup.ToString().Contains(filterQuery));
-                    }
-
-                    if (filterOn.Equals("SchoolName", StringComparison.OrdinalIgnoreCase))
-                    {
-                        dbPeopleQueryable = dbPeopleQueryable.Where(p => p.School.SchoolName.Contains(filterQuery));
+                        personClass.ClassName = _dataContext.Class.Where(p => p.ClassID == personClass.ClassID).ToList().FirstOrDefault().ClassName;
                     }
                 }
 
-                var dbPeople = await dbPeopleQueryable.ToListAsync();
-       
-                serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
+                serviceResponse.Data = listOfDbPeople;
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
@@ -85,7 +64,9 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.UserID == id);
+                var dbPerson = await _dataContext.Person.Include(p => p.PersonClasses)
+                                                        .ThenInclude(pc => pc.Class)
+                                                        .FirstOrDefaultAsync(p => p.UserID == id);
                 serviceResponse.Data = _mapper.Map<GetPersonDto>(dbPerson);
 
                 if (dbPerson is null)
@@ -139,8 +120,25 @@ namespace SchoolProject.Services.Implementations
                     dbPeopleQueryable = dbPeopleQueryable.Where(p => p.YearGroup == searchParams.YearGroup);
                 }
 
-                var dbPeople = await dbPeopleQueryable.ToListAsync();
-                serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
+                if (!searchParams.ClassName.IsNullOrEmpty())
+                {
+                    dbPeopleQueryable = dbPeopleQueryable.Where(p => p.PersonClasses.Select(pc => pc.Class.ClassName)
+                                                                                    .Contains(searchParams.ClassName));
+                }
+
+                var dbPeople = await dbPeopleQueryable.Include(p => p.PersonClasses).ToListAsync();
+
+                var listOfDbPeople = _mapper.Map<List<GetPersonDto>>(dbPeople);
+
+                foreach (var person in listOfDbPeople)
+                {
+                    foreach (var personClass in person.PersonClasses)
+                    {
+                        personClass.ClassName = _dataContext.Class.Where(p => p.ClassID == personClass.ClassID).ToList().FirstOrDefault().ClassName;
+                    }
+                }
+
+                serviceResponse.Data = listOfDbPeople;
 
                 if (dbPeople is null || dbPeople.Count == 0)
                 {
@@ -313,10 +311,56 @@ namespace SchoolProject.Services.Implementations
                 return serviceResponse;
             }
 
+            foreach (var personClass in person.PersonClasses)
+            {
+                if (personClass is null)
+                {
+                    throw new Exception($"{personClass}' could not be found.");
+                }
+
+                var schoolClass = await _dataContext.Class.FindAsync(personClass.ClassID);
+
+                if (schoolClass is null)
+                {
+                    throw new Exception($"Class with ID '{personClass.ClassID}' could not be found.");
+                }
+
+                personClass.Class = schoolClass;
+            }
+
             _dataContext.Person.Add(person);
             await _dataContext.SaveChangesAsync();
 
             serviceResponse.Message = $"Successfully created new person with the first name of '{newPerson.FirstName}'.";
+            serviceResponse.Data =
+                await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<List<GetPersonDto>>> AddClassesToPerson(Guid userID, List<Guid> classIDs)
+        {
+            var serviceResponse = new ServiceResponse<List<GetPersonDto>>();
+            var dbPerson = await _dataContext.Person.FindAsync(userID);
+
+            if (dbPerson is null)
+            {
+                throw new Exception($"Person with ID '{userID}' could not be found.");
+            }
+
+            var classes = await _dataContext.Class.Where(c => classIDs.Contains(c.ClassID))
+                                                  .ToListAsync();
+
+            var personClasses = _mapper.Map<List<PersonClass>>(classes);
+
+            foreach (var personClass in personClasses)
+            {
+                personClass.Person = dbPerson;
+            }
+
+            _dataContext.PersonClass.AddRange(personClasses);
+            await _dataContext.SaveChangesAsync();
+
+            serviceResponse.Message = "Successfully added.";
             serviceResponse.Data =
                 await _dataContext.Person.Select(p => _mapper.Map<GetPersonDto>(p)).ToListAsync();
             return serviceResponse;
@@ -337,7 +381,8 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.UserID == updatedPerson.UserID);
+                var dbPerson = await _dataContext.Person.Include(p => p.PersonClasses)
+                                                        .FirstOrDefaultAsync(p => p.UserID == updatedPerson.UserID);
 
                 if (dbPerson is null)
                 {
@@ -346,10 +391,28 @@ namespace SchoolProject.Services.Implementations
 
                 dbPerson = _mapper.Map(updatedPerson, dbPerson);
 
+                //Clear existing personClasses
+                dbPerson.PersonClasses.Clear();
+
                 if (updatedPerson.UserType == UserType.Teacher && updatedPerson.DateOfBirth != null &&
                 updatedPerson.YearGroup != null)
                 {
                     throw new Exception("Date of birth and year group must be null when the user type of the person is 'Teacher'.");
+                }
+
+                if (updatedPerson.PersonClasses is not null)
+                {
+                    foreach (var updatedPersonClass in updatedPerson.PersonClasses)
+                    {
+                        var personClass = new PersonClass
+                        {
+                            UserID = dbPerson.UserID,
+                            ClassID = updatedPersonClass.ClassID
+                        };
+
+                        dbPerson.PersonClasses.Add(personClass);
+                    }
+
                 }
 
                 await _dataContext.SaveChangesAsync();

@@ -13,9 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowTrustedOrigins",
-        builder =>
+        policy =>
         {
-            builder.WithOrigins("http://localhost:3000")
+            policy.WithOrigins("http://localhost:3000")
                    .AllowAnyHeader()
                    .AllowAnyMethod();
         });
@@ -51,12 +51,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();    
+    app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
-
-app.UseAuthorization();
+app.UseRouting();
 
 app.UseCors("AllowTrustedOrigins");
 
@@ -65,6 +63,14 @@ app.Use(async (context, next) =>
     context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
     await next();
 });
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

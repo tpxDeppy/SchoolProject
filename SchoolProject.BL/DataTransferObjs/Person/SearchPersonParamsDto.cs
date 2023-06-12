@@ -8,5 +8,6 @@ namespace SchoolProject.Models.DataTransferObjs.Person
         public string UserType { get; set; } = string.Empty;
         public string SchoolName { get; set; } = string.Empty;
         public int? YearGroup { get; set; }
+        public string ClassName { get; set; } = string.Empty;
     }
 }

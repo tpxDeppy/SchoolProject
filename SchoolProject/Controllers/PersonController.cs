@@ -20,10 +20,9 @@ namespace SchoolProject.API.Controllers
 
         [HttpGet("GetAll")]
         [EnableCors("AllowTrustedOrigins")]
-        // GET: Person/GetAll?filterOn=LastName&filterQuery=
-        public async Task<ActionResult<List<GetPersonDto>>> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery)
+        public async Task<ActionResult<List<GetPersonDto>>> GetAll()
         {
-            var response = await _personService.GetAllPeople(filterOn, filterQuery);
+            var response = await _personService.GetAllPeople();
             
             if (response.Data is null) 
             { 
@@ -150,6 +149,14 @@ namespace SchoolProject.API.Controllers
         public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> AddPerson(AddPersonDto newPerson)
         {
             var response = await _personService.AddPerson(newPerson);
+            return Created(nameof(GetSinglePerson), response);
+        }
+
+        [HttpPost("Person/AddClassesToPerson")]
+        [EnableCors("AllowTrustedOrigins")]
+        public async Task<ActionResult<ServiceResponse<List<GetPersonDto>>>> AddClassesToPerson(Guid userID, List<Guid> classIDs)
+        {
+            var response = await _personService.AddClassesToPerson(userID, classIDs);
             return Created(nameof(GetSinglePerson), response);
         }
 
