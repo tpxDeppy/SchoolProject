@@ -30,9 +30,19 @@ namespace SchoolProject.Services.Implementations
 
             try
             {                
-                var dbPeople = await _dataContext.Person.Include(p => p.PersonClasses).ThenInclude(pc => pc.Class).ToListAsync();
-       
-                serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
+                var dbPeople = await _dataContext.Person.Include(p => p.PersonClasses).ToListAsync();
+
+                var listOfDbPeople = _mapper.Map<List<GetPersonDto>>(dbPeople);
+
+                foreach (var person in listOfDbPeople)
+                {
+                    foreach (var personClass in person.PersonClasses)
+                    {
+                        personClass.ClassName = _dataContext.Class.Where(p => p.ClassID == personClass.ClassID).ToList().FirstOrDefault().ClassName;
+                    }
+                }
+
+                serviceResponse.Data = listOfDbPeople;
 
                 if (serviceResponse.Data is null || serviceResponse.Data.Count == 0)
                 {
@@ -116,8 +126,19 @@ namespace SchoolProject.Services.Implementations
                                                                                     .Contains(searchParams.ClassName));
                 }
 
-                var dbPeople = await dbPeopleQueryable.Include(p => p.PersonClasses).ThenInclude(pc => pc.Class).ToListAsync();
-                serviceResponse.Data = dbPeople.Select(_mapper.Map<GetPersonDto>).ToList();
+                var dbPeople = await dbPeopleQueryable.Include(p => p.PersonClasses).ToListAsync();
+
+                var listOfDbPeople = _mapper.Map<List<GetPersonDto>>(dbPeople);
+
+                foreach (var person in listOfDbPeople)
+                {
+                    foreach (var personClass in person.PersonClasses)
+                    {
+                        personClass.ClassName = _dataContext.Class.Where(p => p.ClassID == personClass.ClassID).ToList().FirstOrDefault().ClassName;
+                    }
+                }
+
+                serviceResponse.Data = listOfDbPeople;
 
                 if (dbPeople is null || dbPeople.Count == 0)
                 {
@@ -360,7 +381,8 @@ namespace SchoolProject.Services.Implementations
 
             try
             {
-                var dbPerson = await _dataContext.Person.FirstOrDefaultAsync(p => p.UserID == updatedPerson.UserID);
+                var dbPerson = await _dataContext.Person.Include(p => p.PersonClasses)
+                                                        .FirstOrDefaultAsync(p => p.UserID == updatedPerson.UserID);
 
                 if (dbPerson is null)
                 {
@@ -369,27 +391,28 @@ namespace SchoolProject.Services.Implementations
 
                 dbPerson = _mapper.Map(updatedPerson, dbPerson);
 
+                //Clear existing personClasses
+                dbPerson.PersonClasses.Clear();
+
                 if (updatedPerson.UserType == UserType.Teacher && updatedPerson.DateOfBirth != null &&
                 updatedPerson.YearGroup != null)
                 {
                     throw new Exception("Date of birth and year group must be null when the user type of the person is 'Teacher'.");
                 }
 
-                foreach (var personClass in dbPerson.PersonClasses)
+                if (updatedPerson.PersonClasses is not null)
                 {
-                    if (personClass is null)
+                    foreach (var updatedPersonClass in updatedPerson.PersonClasses)
                     {
-                        throw new Exception($"{personClass}' could not be found.");
+                        var personClass = new PersonClass
+                        {
+                            UserID = dbPerson.UserID,
+                            ClassID = updatedPersonClass.ClassID
+                        };
+
+                        dbPerson.PersonClasses.Add(personClass);
                     }
 
-                    var schoolClass = await _dataContext.Class.FindAsync(personClass.ClassID);
-
-                    if (schoolClass is null)
-                    {
-                        throw new Exception($"Class with ID '{personClass.ClassID}' could not be found.");
-                    }
-
-                    personClass.Class = schoolClass;
                 }
 
                 await _dataContext.SaveChangesAsync();
